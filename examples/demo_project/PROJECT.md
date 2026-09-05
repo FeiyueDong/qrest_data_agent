@@ -1,15 +1,13 @@
 # Project
 
-Name: Kunming Building
+Name: Kunming_SSJY（昆明隔震建筑 qREST 示例工程）
 
 ## User Description
 
-这是一个14层隔震建筑。工程设计与监测资料已经上传至 source/。
-
-请整理符合 qREST Metadata Schema 的工程元数据。
+工程资料（PDF / DOCX 各一份，内容相同）位于 source/。
+资料描述了建筑结构、隔震系统、18 个加速度测点布置与一次地震事件
+（2025_MYANMAR_7.9）的采样信息；完整 qREST 示例数据见仓库 data/kunming/。
 
 ## Goal
 
-建立完整、Schema 可校验的 qREST Metadata：
-
-output/metadata.json
+建立符合 qREST_DATA 元数据格式的 output/metadata.json，并通过 qrest-agent validate。

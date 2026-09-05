@@ -133,17 +133,10 @@ def init_project(name: str, parent: Path | str = ".", force: bool = False) -> Pa
         json.dumps({"schema": STATE_SCHEMA, "updated_at": None, "entries": {}}, indent=2)
         + "\n",
     )
-    metadata = {
-        "SchemaVersion": SCHEMA_VERSION,
-        "Project": {"Name": display},
-        "Site": {},
-        "Structure": {},
-        "Instruments": [],
-        "Monitoring": {},
-    }
+    metadata_template = json.loads(_asset_text("metadata.template.json"))
     _write_if_missing(
         root / "output" / "metadata.json",
-        json.dumps(metadata, ensure_ascii=False, indent=2) + "\n",
+        json.dumps(metadata_template, ensure_ascii=False, indent=2) + "\n",
     )
     return root
 

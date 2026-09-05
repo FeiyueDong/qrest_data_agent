@@ -8,4 +8,4 @@ Name: {{PROJECT_NAME}}
 
 ## Goal
 
-建立符合 qREST Metadata Schema 的工程元数据：output/metadata.json
+建立符合 qREST_DATA 格式的工程元数据：output/metadata.json

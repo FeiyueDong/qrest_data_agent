@@ -1,53 +1,34 @@
 # Project Sources
 
-Updated: 2026-09-06T00:28:07+08:00
+Updated: 2026-09-06T00:52:18+08:00
 
-## source/data.json
-Type: JSON
-Status: OK
-Parsed:
-- parsed/data/document.json
----
-## source/description.txt
-Type: TEXT
-Status: OK
-Title: 昆明市某十四层基础隔震建筑。
-Parsed:
-- parsed/description/document.txt
----
 ## source/design.docx
 Type: DOCX
 Status: OK
-Title: 设计说明
+Title: 昆明隔震建筑工程信息提取测试案例
 Parsed:
 - parsed/design/document.md
 - parsed/design/source_map.json
 Major headings:
-- 设计说明
-- 结构主要参数
-- 监测系统设备
----
-## source/monitoring.xlsx
-Type: XLSX
-Status: OK
-Sheets:
-- Sensors
-- Channels
-Parsed:
-- parsed/monitoring/workbook.md
-- parsed/monitoring/Sensors.csv
-- parsed/monitoring/Channels.csv
+- 昆明隔震建筑工程信息提取测试案例
+- 1 工程概况
+- 2 结构体系与隔震层信息
+- 3 结构平面与测点空间布置
+- 4 健康监测系统
+- 5 传感器参数
+- 6 数据采集信息（测试数据）
+- 7 测点布置描述（自然语言形式）
+- 8 测试说明
 ---
 ## source/report.pdf
 Type: PDF
 Status: OK
-Pages: 3
-Title: 工程概况
+Pages: 2
+Title: 昆明隔震建筑工程信息提取测试案例
 Parsed:
 - parsed/report/document.md
 - parsed/report/source_map.json
 Major headings:
-- 工程概况
-- 结构设计
-- 隔震设计
+- 昆明隔震建筑工程信息提取测试案例
+- 18 个传感器通过有线方式连接至两个数据采集设备。位于地下第一层的数据采集设备负责采
 ---

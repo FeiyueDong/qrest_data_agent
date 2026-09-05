@@ -13,10 +13,11 @@
 - Workspace：一个工程 = 一个目录
 - Document Core：TXT / JSON / PDF / DOCX / XLSX → parsed/
 - PROJECT_INDEX.md
-- Metadata JSON Schema
-- Metadata Validator（Schema + 引用一致性）
+- 正式 qREST_DATA JSON Schema（依据 data/metadata.json 注释版格式整理）
+- Metadata Validator（Schema + 一致性：ElevationNum / ChannelNum / ChannelNo）
 - CLI：init / parse / index / validate
 - 固定演示工程与 5 个 Benchmark 案例
+- 真实 qREST 示例数据：data/kunming、data/wuhan
 
 ## 安装
 
@@ -31,9 +32,10 @@
     cp report.pdf source/
     cp monitoring.xlsx source/
     qrest-agent parse
+    # 编辑 output/metadata.json（qREST_DATA 格式）
     qrest-agent validate
 
-也可以直接运行固定演示工程：
+也可以直接运行固定演示工程（真实输入文档 + data/kunming 完整结果）：
 
     cd examples/demo_project
     qrest-agent validate
@@ -46,7 +48,7 @@
     ├── schema/metadata.schema.json
     ├── source/                   # 原始资料，Agent 不修改
     ├── parsed/                   # Parser 输出 + PROJECT_INDEX.md
-    ├── output/metadata.json      # Agent 最终产物
+    ├── output/metadata.json      # qREST_DATA 元数据（Agent 最终产物）
     └── .qrest/                   # 内部状态（project.json / parse_state.json）
 
 ## CLI
@@ -75,26 +77,46 @@
 
 PDF 仅保证 text-based PDF；扫描 PDF 会显式给出 WARNING。
 
-## Metadata Contract（V0.1）
+## qREST_DATA Metadata Contract（V0.1）
 
-正式 Schema：schema/metadata.schema.json（工程目录与仓库各有一份）。
+正式 Schema：schema/metadata.schema.json（工程目录与包内 assets 各有一份）。
 
-顶层字段：
+顶层结构（对应 data/metadata.json 的注释版格式）：
 
-    SchemaVersion  固定 "0.1.0"
-    Project        Name 必填
-    Site           SiteClass / Address / 坐标
-    Structure      StructureType / Stories / Height / 隔震信息 / 设防烈度
-    Instruments    仪器数组（InstrumentID）
-    Monitoring     Sensors[] + Channels[]（引用校验）
+    Header       固定 "qREST_DATA"
+    Version      固定 [1, 0, 0]
+    Units        必须 ["m", "s"]
+    BuildingInfo   ProjectName / GeoLocation / StructuralType /
+                   StructuralFootprint / ElevationNum / Elevation
+    InstrumentInfo Provider / ChannelNum / Channels[]
+    DataInfo       EventName / StartTime / NPTS / DT / Corrected
 
-Validator 引用规则：
+字段重要性标注以 data/metadata.json 中的注释为准：
 
-    Monitoring.Sensors[].InstrumentID  → Instruments[].InstrumentID
-    Monitoring.Channels[].SensorID     → Monitoring.Sensors[].SensorID
+- 必须：ElevationNum、Elevation、ChannelNum、Channels[].ChannelNo、
+  LocationXYZ、Azimuth、NPTS、DT
+- 重要：StructuralFootprint、Measurand、Scale
+- 不重要：ProjectName、GeoLocation、StructuralType、Provider、ChannelID、
+  DeviceType、EventName、StartTime、Corrected（缺失可用 UNKNOWN / NULL / 0）
 
-ID 重复、未知引用、类型错误、枚举错误、多余字段都会产生 ERROR；
-资料缺失导致的空缺只产生 WARNING（不许编造）。
+Validator 一致性检查：
+
+    ElevationNum == len(BuildingInfo.Elevation)
+    ChannelNum  == len(InstrumentInfo.Channels)
+    Channels[].ChannelNo 必须唯一
+
+多余字段、类型错误、必填缺失、枚举错误都会产生 ERROR；
+不完整（例如 0 通道）只产生 WARNING（Agent 应报告缺失，不许编造）。
+
+## data/ 示例数据
+
+- data/metadata.json —— qREST_DATA 格式的“注释版模板/字段说明”（含 // 注释，不是机器 JSON）
+- data/kunming/metadata.json —— 昆明工程完整机器 JSON（18 通道）
+- data/kunming/data.txt、kunming.qrest —— 波形示例（30000 点原始记录）
+- data/wuhan/ —— 武汉工程示例（27 通道，Elevation 63 个）
+
+data/kunming/metadata.json 与 data/wuhan/metadata.json 同时作为 Validator
+的固定合法用例（tests/metadata/cases 中保留副本）。
 
 ## 测试
 
@@ -104,24 +126,20 @@ ID 重复、未知引用、类型错误、枚举错误、多余字段都会产�
 
 - tests/workspace — init / 目录结构 / 工程发现
 - tests/documents — TXT/JSON/PDF/DOCX/XLSX parser
-- tests/metadata/cases — 固定合法/非法 metadata 案例
+- tests/metadata/cases — 真实 qREST 样本 + 确定性非法变体
 - tests/test_cli.py — init → parse → index → validate 端到端
-- tests/test_benchmark_cases.py — 固定工程可运行
+- tests/test_benchmark_cases.py — 固定工程可运行、参考答案 Schema-valid
 
 ## Benchmark 案例（examples/benchmark_cases）
 
-    case01_natural_language     仅自然语言
+    case01_natural_language     仅自然语言（+ data/kunming 基准）
     case02_txt                  TXT
-    case03_pdf                  PDF
+    case03_pdf                  PDF（Kunming_building_metadata_test_case）
     case04_pdf_xlsx             PDF + XLSX 跨资料整合
     case05_conflicting_missing  冲突/缺失信息
 
-每个案例包含：
-
-- 完整 qREST 工程目录（含 expected/metadata.json 参考答案）
-- PROJECT.md 用户描述
-- source/ 固定资料
-- CHECKLIST.md 评分点（幻觉率 / 遗漏 / 冲突处理）
+每个案例包含完整 qREST 工程目录、expected/metadata.json 参考答案与
+CHECKLIST.md。examples/demo_project 为完整可运行示例。
 
 ## OpenHands 集成实验（M4）
 
@@ -131,5 +149,5 @@ AGENTS.md 能力：
     cd examples/demo_project
     openhands
 
-Agent 会读取 AGENTS.md、PROJECT.md、parsed/PROJECT_INDEX.md，自行执行
+Agent 读取 AGENTS.md、PROJECT.md、parsed/PROJECT_INDEX.md，自行执行
 qrest-agent parse / qrest-validate 并修改 output/metadata.json。

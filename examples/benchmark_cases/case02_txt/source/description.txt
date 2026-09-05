@@ -1,7 +1,5 @@
-昆明市某工程概况
-结构形式：框架-剪力墙结构
-地上层数：14层
-建筑高度：47.4 m
-隔震形式：基础隔震，铅芯橡胶支座
-抗震设防烈度：8度
-场地类别：III类
+Kunming_SSJY qREST 测试数据
+Building: 14-story isolated steel frame, 47.4 m, rectangular 42 x 25.2 m
+Provider: SSJY   Channels: 18   Measurand: Acceleration   Scale: 1
+Elevation levels: -2.7,0.0,4.5,7.8,11.1,14.4,17.7,21.0,24.3,27.6,30.9,34.2,37.5,40.8,44.1,47.4
+Event: 2025_MYANMAR_7.9  Start: 2025-03-28T14:20:00.000+08:00  NPTS: 30000  DT: 0.02

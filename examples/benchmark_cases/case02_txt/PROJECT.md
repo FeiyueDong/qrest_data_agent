@@ -1,11 +1,7 @@
 # Project
 
-Name: Case 02 - TXT Source
+Name: Case 02 - TXT Source（Kunming_SSJY）
 
 ## User Description
 
-工程资料只有一份文本说明，位于 source/description.txt。请整理元数据。
-
-## Goal
-
-output/metadata.json 必须通过 qrest-agent validate。
+唯一工程资料是 source/description.txt（人工整理的数据说明），请生成 qREST_DATA 元数据。

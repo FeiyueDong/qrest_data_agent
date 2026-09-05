@@ -8,6 +8,49 @@ from pathlib import Path
 import openpyxl
 
 
+def _qrest_metadata(project_name: str = "Demo") -> dict:
+    """A complete minimal qREST_DATA metadata object (schema-valid)."""
+    return {
+        "Header": "qREST_DATA",
+        "Version": [1, 0, 0],
+        "Units": ["m", "s"],
+        "BuildingInfo": {
+            "ProjectName": project_name,
+            "GeoLocation": {"Longitude": 0.0, "Latitude": 0.0, "NorthAngle": 0.0},
+            "StructuralType": "UNKNOWN",
+            "StructuralFootprint": {
+                "Shape": "Rectangular",
+                "Parameters": {"Length": 42.0, "Width": 25.2},
+                "BoundingBox": {"MaxX": 21.0, "MinX": -21.0, "MaxY": 12.6, "MinY": -12.6},
+            },
+            "ElevationNum": 2,
+            "Elevation": [0.0, 4.5],
+        },
+        "InstrumentInfo": {
+            "Provider": "UNKNOWN",
+            "ChannelNum": 1,
+            "Channels": [
+                {
+                    "ChannelNo": 1,
+                    "ChannelID": "UNKNOWN",
+                    "DeviceType": "UNKNOWN",
+                    "Measurand": "Acceleration",
+                    "Scale": 1,
+                    "Azimuth": 90.0,
+                    "LocationXYZ": [0.0, 0.0, 0.0],
+                }
+            ],
+        },
+        "DataInfo": {
+            "EventName": "UNKNOWN",
+            "StartTime": "2025-03-28T14:20:00.000+08:00",
+            "NPTS": 30000,
+            "DT": 0.02,
+            "Corrected": "NULL",
+        },
+    }
+
+
 def _add_xlsx(path: Path) -> None:
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -46,37 +89,34 @@ def test_cli_init_parse_index_validate(run_cli, tmp_path: Path) -> None:
     assert again.returncode == 0
     assert (project / "parsed" / "PROJECT_INDEX.md").is_file()
 
+    # Write a complete qREST_DATA metadata, then validation must pass.
+    metadata_path = project / "output" / "metadata.json"
+    metadata_path.write_text(
+        json.dumps(_qrest_metadata("Kunming"), ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     ok = run_cli(["validate"], cwd=project)
     assert ok.returncode == 0, ok.stdout + ok.stderr
     assert "Validation passed." in ok.stdout
 
-    # breaking reference -> exit code 1
-    metadata_path = project / "output" / "metadata.json"
+    # Break consistency -> exit code 1 with an ERROR
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
-    metadata.setdefault("Monitoring", {}).setdefault("Sensors", [])
-    metadata["Monitoring"]["Sensors"].append(
-        {"SensorID": "S001", "InstrumentID": "NOPE"}
-    )
-    metadata["Instruments"] = []
+    metadata["BuildingInfo"]["ElevationNum"] = 99
     metadata_path.write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")
     bad = run_cli(["validate"], cwd=project)
     assert bad.returncode == 1
     assert "ERROR" in bad.stdout
-    assert "Unknown Instrument" in bad.stdout
+    assert "/BuildingInfo/ElevationNum" in bad.stdout
 
 
 def test_cli_validate_standalone_file(tmp_path: Path, run_cli) -> None:
-    meta = {
-        "SchemaVersion": "0.1.0",
-        "Project": {"Name": "Standalone"},
-        "Structure": {"Stories": "9"},
-    }
+    meta = _qrest_metadata("Standalone")
+    meta["InstrumentInfo"]["ChannelNum"] = 5  # one channel listed -> inconsistent
     path = tmp_path / "metadata.json"
     path.write_text(json.dumps(meta), encoding="utf-8")
-    # outside any project: package schema is used
     outside = tmp_path / "somewhere-else"
     outside.mkdir()
     result = run_cli(["validate", str(path)], cwd=outside)
     assert result.returncode == 1
-    assert "/Structure/Stories" in result.stdout
-    assert "Expected: integer" in result.stdout
+    assert "/InstrumentInfo/ChannelNum" in result.stdout
+    assert "len(Channels) = 1" in result.stdout

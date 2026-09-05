@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-06T00:28:54+08:00",
+  "updated_at": "2026-09-06T00:52:19+08:00",
   "entries": {
     "source/monitoring.xlsx": {
       "parser": "xlsx",
@@ -8,28 +8,21 @@
       "title": null,
       "output_files": [
         "parsed/monitoring/workbook.md",
-        "parsed/monitoring/Devices.csv",
-        "parsed/monitoring/Sensors.csv",
+        "parsed/monitoring/Elevation.csv",
         "parsed/monitoring/Channels.csv"
       ],
       "metadata": {
         "sheets": [
           {
-            "name": "Devices",
-            "rows": 2,
-            "columns": 3,
-            "file": "Devices.csv"
-          },
-          {
-            "name": "Sensors",
-            "rows": 4,
-            "columns": 4,
-            "file": "Sensors.csv"
+            "name": "Elevation",
+            "rows": 17,
+            "columns": 2,
+            "file": "Elevation.csv"
           },
           {
             "name": "Channels",
-            "rows": 5,
-            "columns": 3,
+            "rows": 19,
+            "columns": 9,
             "file": "Channels.csv"
           }
         ]
@@ -40,18 +33,17 @@
     "source/report.pdf": {
       "parser": "pdf",
       "status": "ok",
-      "title": "工程概况",
+      "title": "昆明隔震建筑工程信息提取测试案例",
       "output_files": [
         "parsed/report/document.md",
         "parsed/report/source_map.json"
       ],
       "metadata": {
-        "pages": 3,
-        "chars": 129,
+        "pages": 2,
+        "chars": 2011,
         "headings": [
-          "工程概况",
-          "结构设计",
-          "隔震设计"
+          "昆明隔震建筑工程信息提取测试案例",
+          "18 个传感器通过有线方式连接至两个数据采集设备。位于地下第一层的数据采集设备负责采"
         ],
         "scanned_pdf": false
       },

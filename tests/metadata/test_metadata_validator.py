@@ -1,4 +1,8 @@
-"""Validator tests driven by fixed JSON case files (deterministic results)."""
+"""Validator tests for the formal qREST_DATA metadata schema.
+
+Valid fixtures are the real files provided under data/kunming and data/wuhan;
+invalid fixtures are deterministic corruptions of the Kunming sample.
+"""
 
 from __future__ import annotations
 
@@ -13,18 +17,20 @@ from qrest_agent.metadata.validator import validate_dict
 CASES = Path(__file__).resolve().parent / "cases"
 
 EXPECTATIONS = {
-    "valid_minimal.json": {"errors": 0, "warnings": 0},
-    "valid_complete.json": {"errors": 0, "warnings": 0},
-    "invalid_type.json": {"errors": 1, "path": "/Structure/Stories", "code": "schema.type"},
-    "invalid_enum.json": {"errors": 1, "path": "/Site/SiteClass", "code": "schema.enum"},
-    "broken_reference.json": {"errors": 1, "path": "/Monitoring/Channels/1/SensorID",
-                              "code": "reference.unknown-sensor"},
-    "broken_instrument_reference.json": {"errors": 1, "path": "/Monitoring/Sensors/0/InstrumentID",
-                                         "code": "reference.unknown-instrument"},
-    "missing_required.json": {"errors": 1, "path": "/Project/Name", "code": "schema.required"},
-    "unknown_field.json": {"errors": 1, "path": "/Structure/HeightM", "code": "schema.additionalProperties"},
-    "duplicate_sensor.json": {"errors": 1, "code": "duplicate.id"},
-    "wrong_version.json": {"errors": 1},
+    "qrest_valid_kunming.json": {"errors": 0, "warnings": 0},
+    "qrest_valid_wuhan.json": {"errors": 0, "warnings": 0},
+    "invalid_header.json": {"errors": 1, "path": "/Header"},
+    "invalid_version.json": {"errors": 1, "path": "/Version/2"},
+    "invalid_type.json": {"errors": 1, "path": "/BuildingInfo/ElevationNum", "code": "schema.type"},
+    "broken_elevation_count.json": {"errors": 1, "path": "/BuildingInfo/ElevationNum",
+                                    "code": "consistency.elevation-count"},
+    "broken_channel_count.json": {"errors": 1, "path": "/InstrumentInfo/ChannelNum",
+                                  "code": "consistency.channel-count"},
+    "duplicate_channel_no.json": {"errors": 1, "code": "duplicate.channel-no"},
+    "missing_required.json": {"errors": 1, "path": "/DataInfo", "code": "schema.required"},
+    "unknown_field.json": {"errors": 1, "path": "/ExtraTopLevel",
+                           "code": "schema.additionalProperties"},
+    "missing_units.json": {"errors": 1, "path": "/Units"},
 }
 
 
@@ -35,23 +41,23 @@ def test_case(name: str) -> None:
     expected = EXPECTATIONS[name]
     assert len(result.errors) == expected["errors"], [i.render() for i in result.errors]
     if "path" in expected:
-        paths = [i.path for i in result.errors]
-        assert expected["path"] in paths, paths
+        assert expected["path"] in [i.path for i in result.errors]
     if "code" in expected:
-        codes = [i.code for i in result.errors]
-        assert expected["code"] in codes, codes
+        assert expected["code"] in [i.code for i in result.errors]
 
 
-def test_valid_complete_has_no_warnings() -> None:
-    metadata = json.loads((CASES / "valid_complete.json").read_text(encoding="utf-8"))
-    result = validate_dict(metadata, package_schema())
-    assert result.valid
-    assert result.warnings == []
+def test_provided_samples_stay_valid() -> None:
+    for name in ("qrest_valid_kunming.json", "qrest_valid_wuhan.json"):
+        metadata = json.loads((CASES / name).read_text(encoding="utf-8"))
+        result = validate_dict(metadata, package_schema())
+        assert result.valid, [i.render() for i in result.errors]
+        assert result.warnings == []
 
 
-def test_broken_file_json_error() -> None:
+def test_validate_file_from_path(tmp_path: Path) -> None:
     from qrest_agent.metadata.validator import validate_file
 
-    path = CASES / "valid_minimal.json"
-    result = validate_file(path)
-    assert result.valid
+    source = CASES / "qrest_valid_kunming.json"
+    target = tmp_path / "metadata.json"
+    target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+    assert validate_file(target).valid

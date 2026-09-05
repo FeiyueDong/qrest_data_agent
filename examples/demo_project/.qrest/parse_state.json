@@ -1,79 +1,29 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-06T00:28:07+08:00",
+  "updated_at": "2026-09-06T00:52:18+08:00",
   "entries": {
-    "source/data.json": {
-      "parser": "json",
-      "status": "ok",
-      "title": null,
-      "output_files": [
-        "parsed/data/document.json"
-      ],
-      "metadata": {
-        "top_level": "dict"
-      },
-      "warnings": [],
-      "error": null
-    },
-    "source/description.txt": {
-      "parser": "text",
-      "status": "ok",
-      "title": "昆明市某十四层基础隔震建筑。",
-      "output_files": [
-        "parsed/description/document.txt"
-      ],
-      "metadata": {
-        "encoding": "utf-8",
-        "lines": 2,
-        "chars": 39
-      },
-      "warnings": [],
-      "error": null
-    },
     "source/design.docx": {
       "parser": "docx",
       "status": "ok",
-      "title": "设计说明",
+      "title": "昆明隔震建筑工程信息提取测试案例",
       "output_files": [
         "parsed/design/document.md",
         "parsed/design/source_map.json"
       ],
       "metadata": {
         "headings": [
-          "设计说明",
-          "结构主要参数",
-          "监测系统设备"
+          "昆明隔震建筑工程信息提取测试案例",
+          "1 工程概况",
+          "2 结构体系与隔震层信息",
+          "3 结构平面与测点空间布置",
+          "4 健康监测系统",
+          "5 传感器参数",
+          "6 数据采集信息（测试数据）",
+          "7 测点布置描述（自然语言形式）",
+          "8 测试说明"
         ],
-        "tables": 2,
-        "paragraphs": 18
-      },
-      "warnings": [],
-      "error": null
-    },
-    "source/monitoring.xlsx": {
-      "parser": "xlsx",
-      "status": "ok",
-      "title": null,
-      "output_files": [
-        "parsed/monitoring/workbook.md",
-        "parsed/monitoring/Sensors.csv",
-        "parsed/monitoring/Channels.csv"
-      ],
-      "metadata": {
-        "sheets": [
-          {
-            "name": "Sensors",
-            "rows": 4,
-            "columns": 4,
-            "file": "Sensors.csv"
-          },
-          {
-            "name": "Channels",
-            "rows": 5,
-            "columns": 3,
-            "file": "Channels.csv"
-          }
-        ]
+        "tables": 0,
+        "paragraphs": 76
       },
       "warnings": [],
       "error": null
@@ -81,18 +31,17 @@
     "source/report.pdf": {
       "parser": "pdf",
       "status": "ok",
-      "title": "工程概况",
+      "title": "昆明隔震建筑工程信息提取测试案例",
       "output_files": [
         "parsed/report/document.md",
         "parsed/report/source_map.json"
       ],
       "metadata": {
-        "pages": 3,
-        "chars": 129,
+        "pages": 2,
+        "chars": 2011,
         "headings": [
-          "工程概况",
-          "结构设计",
-          "隔震设计"
+          "昆明隔震建筑工程信息提取测试案例",
+          "18 个传感器通过有线方式连接至两个数据采集设备。位于地下第一层的数据采集设备负责采"
         ],
         "scanned_pdf": false
       },

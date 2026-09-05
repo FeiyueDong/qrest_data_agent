@@ -1,2 +1,4 @@
-冲突: report.pdf 说 14层/47.4m/III类 框架-剪力墙; note.txt 说 15层/48.0m/II类 框架。
-若无法裁决，Stories/Height/SiteClass 应空缺，并向用户报告。
+冲突记录
+- Stories/Height: report.pdf=14层/47.4m；note.txt=15层/48.0m。以基准 data/kunming 的
+  14层/47.4m 为准，需向用户说明。
+- Channels: report.pdf/基准=18；note.txt=20。以18为准，需向用户说明。

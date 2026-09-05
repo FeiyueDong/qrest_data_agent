@@ -1,12 +1,12 @@
 # Project
 
-Name: Case 04 - PDF + XLSX Integration
+Name: Case 04 - PDF + XLSX Integration（Kunming_SSJY）
 
 ## User Description
 
-工程资料包括设计报告 PDF 和监测清单 XLSX：source/report.pdf, source/monitoring.xlsx。
-请跨资料整合建立完整元数据（结构 + 仪器 + 传感器 + 通道）。
+工程资料为 source/report.pdf（结构/系统说明）与 source/monitoring.xlsx（Elevation 与
+18 通道配置清单）。跨资料整合生成 qREST_DATA 元数据。
 
 ## Goal
 
-output/metadata.json 必须通过 qrest-agent validate，且引用关系一致。
+Elevation/Channels 必须与 XLSX 一致且通过 qrest-agent validate。

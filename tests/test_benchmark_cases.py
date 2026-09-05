@@ -19,19 +19,6 @@ CASE_NAMES = [
 ]
 
 
-def _assert_valid_project(root: Path) -> None:
-    schema = root / "schema" / "metadata.schema.json"
-    expected = root / "expected" / "metadata.json"
-    if expected.exists():
-        result = validate_file(expected, schema)
-        assert result.valid, [i.render() for i in result.errors]
-    # initial output metadata must already be schema-valid (warnings allowed)
-    output = root / "output" / "metadata.json"
-    if output.exists():
-        result = validate_file(output, schema)
-        assert result.valid, [i.render() for i in result.errors]
-
-
 def test_demo_project_is_valid_and_parsed() -> None:
     assert (DEMO / "AGENTS.md").is_file()
     assert (DEMO / "parsed" / "PROJECT_INDEX.md").is_file()
@@ -39,11 +26,19 @@ def test_demo_project_is_valid_and_parsed() -> None:
     result = validate_file(DEMO / "output" / "metadata.json", DEMO / "schema" / "metadata.schema.json")
     assert result.valid
     assert result.warnings == []
+    expected = DEMO / "expected" / "metadata.json"
+    assert expected.is_file()
+    assert validate_file(expected, DEMO / "schema" / "metadata.schema.json").valid
 
 
-def test_benchmark_cases_present_and_valid() -> None:
+def test_benchmark_cases_present_and_expected_valid() -> None:
     assert CASES.is_dir()
     names = sorted(p.name for p in CASES.iterdir() if p.is_dir())
     for name in CASE_NAMES:
         assert name in names
-        _assert_valid_project(CASES / name)
+        project = CASES / name
+        expected = project / "expected" / "metadata.json"
+        assert expected.exists(), name
+        schema = project / "schema" / "metadata.schema.json"
+        result = validate_file(expected, schema)
+        assert result.valid, (name, [i.render() for i in result.errors])

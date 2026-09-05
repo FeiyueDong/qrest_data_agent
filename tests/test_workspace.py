@@ -37,8 +37,9 @@ def test_init_creates_full_skeleton(tmp_path: Path) -> None:
     assert info["metadata_schema_version"] == SCHEMA_VERSION
 
     metadata = json.loads((root / "output" / "metadata.json").read_text(encoding="utf-8"))
-    assert metadata["SchemaVersion"] == SCHEMA_VERSION
-    assert metadata["Project"]["Name"] == "Kunming"
+    assert metadata["Header"] == "qREST_DATA"
+    assert metadata["Version"] == [1, 0, 0]
+    assert metadata["Units"] == ["m", "s"]
     assert (root / "PROJECT.md").read_text(encoding="utf-8").startswith("# Project")
     assert "Kunming" in (root / "PROJECT.md").read_text(encoding="utf-8")
 
@@ -47,10 +48,11 @@ def test_agents_md_and_schema_are_copyable(tmp_path: Path) -> None:
     root = init_project("Demo", tmp_path)
     agents = (root / "AGENTS.md").read_text(encoding="utf-8")
     assert "qREST Metadata Agent" in agents
+    assert "qREST_DATA" in agents
     assert "qrest-agent parse" in agents
-    assert "qrest-validate output/metadata.json" in agents
     schema = json.loads((root / "schema" / "metadata.schema.json").read_text(encoding="utf-8"))
-    assert schema["properties"]["Project"]["required"] == ["Name"]
+    assert schema["required"] == ["Header", "Version", "Units", "BuildingInfo", "InstrumentInfo", "DataInfo"]
+    assert schema["properties"]["Header"]["const"] == "qREST_DATA"
 
 
 def test_find_project_root_walks_upward(tmp_path: Path) -> None:
@@ -65,6 +67,7 @@ def test_init_rejects_existing_nonempty(tmp_path: Path) -> None:
     with pytest.raises(ProjectError):
         init_project("Once", tmp_path)
     assert root.is_dir()
+
 
 def test_package_assets_match_repo_canonical_files(tmp_path: Path) -> None:
     import json as _json

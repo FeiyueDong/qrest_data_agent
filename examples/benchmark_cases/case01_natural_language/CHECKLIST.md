@@ -1,6 +1,5 @@
 # Case 01 Checklist
 
-- Sources: 仅 PROJECT.md 中的自然语言描述。
-- Schema valid: 必须。
-- 应识别: Project / Site.SiteClass / Structure(StructureType, Stories, Height, IsolationSystem, IsolationType, SeismicDesignIntensity)。
-- 禁止幻觉: 不得添加任何传感器/仪器/通道等未提供的信息。
+- 仅自然语言 + data/kunming 基准。
+- Header/Version/Units 必须正确；ElevationNum==len(Elevation)、ChannelNum==len(Channels)。
+- 不得虚构 source 中不存在的设备型号/坐标。

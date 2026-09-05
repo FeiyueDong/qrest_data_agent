@@ -1,13 +1,13 @@
 # Project
 
-Name: Case 05 - Conflicting / Missing Information
+Name: Case 05 - Conflicting / Missing Information（Kunming_SSJY）
 
 ## User Description
 
-两份资料描述同一建筑，但存在冲突。请整理元数据。
-
-若冲突无法可靠解决，不要自行猜测：保留空缺并在汇报中明确说明，等待用户裁决。
+source/report.pdf 与 source/note.txt 对同一建筑的部分参数描述冲突
+（见 expected/REPORT.md）。不要擅自选值：冲突字段保留基准数据
+（data/kunming/metadata.json），并在汇报中向用户说明。
 
 ## Goal
 
-output/metadata.json 必须通过 qrest-agent validate（无 ERROR）。
+output/metadata.json 通过 qrest-agent validate（无 ERROR）。

@@ -1,10 +1,48 @@
 {
-  "SchemaVersion": "0.1.0",
-  "Project": {
-    "Name": "case03_pdf"
+  "Header": "qREST_DATA",
+  "Version": [
+    1,
+    0,
+    0
+  ],
+  "Units": [
+    "m",
+    "s"
+  ],
+  "BuildingInfo": {
+    "ProjectName": "UNKNOWN",
+    "GeoLocation": {
+      "Longitude": 0,
+      "Latitude": 0,
+      "NorthAngle": 0
+    },
+    "StructuralType": "UNKNOWN",
+    "StructuralFootprint": {
+      "Shape": "Rectangular",
+      "Parameters": {
+        "Length": 0,
+        "Width": 0
+      },
+      "BoundingBox": {
+        "MaxX": 0,
+        "MinX": 0,
+        "MaxY": 0,
+        "MinY": 0
+      }
+    },
+    "ElevationNum": 0,
+    "Elevation": []
   },
-  "Site": {},
-  "Structure": {},
-  "Instruments": [],
-  "Monitoring": {}
+  "InstrumentInfo": {
+    "Provider": "UNKNOWN",
+    "ChannelNum": 0,
+    "Channels": []
+  },
+  "DataInfo": {
+    "EventName": "UNKNOWN",
+    "StartTime": "",
+    "NPTS": 0,
+    "DT": 0,
+    "Corrected": "NULL"
+  }
 }

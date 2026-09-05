@@ -1,53 +1,292 @@
 {
-  "SchemaVersion": "0.1.0",
-  "Project": {
-    "Code": "KM-B-001"
-  },
-  "Site": {
-    "SiteClass": "III",
-    "Address": "Kunming, Yunnan",
-    "Latitude": 24.88,
-    "Longitude": 102.83
-  },
-  "Structure": {
-    "StructureType": "FrameShearWall",
-    "Stories": 14,
-    "Height": 47.4,
-    "IsolationSystem": true,
-    "IsolationType": "LeadRubberBearing",
-    "SeismicDesignIntensity": 8
-  },
-  "Instruments": [
-    {
-      "InstrumentID": "INS-001",
-      "InstrumentType": "DataAcquisitionSystem"
-    }
+  "Header": "qREST_DATA",
+  "Version": [
+    1,
+    0,
+    0
   ],
-  "Monitoring": {
-    "Sensors": [
-      {
-        "SensorID": "S001",
-        "InstrumentID": "INS-001",
-        "Floor": "1",
-        "Direction": "X"
+  "Units": [
+    "m",
+    "s"
+  ],
+  "BuildingInfo": {
+    "ProjectName": "Kunming_SSJY",
+    "GeoLocation": {
+      "Longitude": 21.85,
+      "Latitude": 95.95,
+      "NorthAngle": 0.0
+    },
+    "StructuralType": "SteelFrame",
+    "StructuralFootprint": {
+      "Shape": "Rectangular",
+      "Parameters": {
+        "Length": 42,
+        "Width": 25.2
       },
-      {
-        "SensorID": "S002",
-        "InstrumentID": "INS-001",
-        "Floor": "8",
-        "Direction": "Y"
+      "BoundingBox": {
+        "MaxX": 21.0,
+        "MinX": -21.0,
+        "MaxY": 12.6,
+        "MinY": -12.6
       }
-    ],
+    },
+    "ElevationNum": 16,
+    "Elevation": [
+      -2.7,
+      0.0,
+      4.5,
+      7.8,
+      11.1,
+      14.4,
+      17.7,
+      21.0,
+      24.3,
+      27.6,
+      30.9,
+      34.2,
+      37.5,
+      40.8,
+      44.1,
+      47.4
+    ]
+  },
+  "InstrumentInfo": {
+    "Provider": "SSJY",
+    "ChannelNum": 18,
     "Channels": [
       {
-        "ChannelID": "CH-001",
-        "SensorID": "S001",
-        "ChannelNumber": 1
+        "ChannelNo": 1,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          -20.6,
+          -4.2,
+          -2.7
+        ]
       },
       {
-        "ChannelID": "CH-002",
-        "SensorID": "S002",
-        "ChannelNumber": 2
+        "ChannelNo": 2,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          20.6,
+          -4.2,
+          -2.7
+        ]
+      },
+      {
+        "ChannelNo": 3,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 0.0,
+        "LocationXYZ": [
+          0.0,
+          -4.2,
+          -2.7
+        ]
+      },
+      {
+        "ChannelNo": 4,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          -20.6,
+          -4.2,
+          0.0
+        ]
+      },
+      {
+        "ChannelNo": 5,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          20.6,
+          -4.2,
+          0.0
+        ]
+      },
+      {
+        "ChannelNo": 6,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 0.0,
+        "LocationXYZ": [
+          0.0,
+          -4.2,
+          0.0
+        ]
+      },
+      {
+        "ChannelNo": 7,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          -20.6,
+          -4.2,
+          11.0
+        ]
+      },
+      {
+        "ChannelNo": 8,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          20.6,
+          -4.2,
+          11.0
+        ]
+      },
+      {
+        "ChannelNo": 9,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 0.0,
+        "LocationXYZ": [
+          0.0,
+          -4.2,
+          11.0
+        ]
+      },
+      {
+        "ChannelNo": 10,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          -20.6,
+          -4.2,
+          21.0
+        ]
+      },
+      {
+        "ChannelNo": 11,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          20.6,
+          -4.2,
+          21.0
+        ]
+      },
+      {
+        "ChannelNo": 12,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 0.0,
+        "LocationXYZ": [
+          0.0,
+          -4.2,
+          21.0
+        ]
+      },
+      {
+        "ChannelNo": 13,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          -20.6,
+          -4.2,
+          30.9
+        ]
+      },
+      {
+        "ChannelNo": 14,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          20.6,
+          -4.2,
+          30.9
+        ]
+      },
+      {
+        "ChannelNo": 15,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 0.0,
+        "LocationXYZ": [
+          0.0,
+          -4.2,
+          30.9
+        ]
+      },
+      {
+        "ChannelNo": 16,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          -20.6,
+          -4.2,
+          44.1
+        ]
+      },
+      {
+        "ChannelNo": 17,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          20.6,
+          -4.2,
+          44.1
+        ]
+      },
+      {
+        "ChannelNo": 18,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1,
+        "Azimuth": 0.0,
+        "LocationXYZ": [
+          0.0,
+          -4.2,
+          44.1
+        ]
       }
     ]
   }

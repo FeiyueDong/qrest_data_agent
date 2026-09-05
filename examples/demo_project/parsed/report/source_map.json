@@ -6,19 +6,13 @@
       "id": "page-1",
       "type": "page",
       "page": 1,
-      "heading": "工程概况"
+      "heading": "昆明隔震建筑工程信息提取测试案例"
     },
     {
       "id": "page-2",
       "type": "page",
       "page": 2,
-      "heading": "结构设计"
-    },
-    {
-      "id": "page-3",
-      "type": "page",
-      "page": 3,
-      "heading": "隔震设计"
+      "heading": "18 个传感器通过有线方式连接至两个数据采集设备。位于地下第一层的数据采集设备负责采"
     }
   ]
 }

@@ -1,4 +1,0 @@
-SensorID,InstrumentID,Floor,Direction
-S001,INS-001,1,X
-S002,INS-001,8,Y
-S003,INS-001,14,Z

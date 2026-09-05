@@ -1,9 +1,12 @@
-"""Deterministic qREST metadata validator.
+"""Deterministic qREST metadata validator (qREST_DATA format 1.0.0).
 
 Level 1: JSON Schema validation.
-Level 2: minimal qREST consistency (ID uniqueness and references).
+Level 2: basic qREST consistency:
+  - ElevationNum == len(BuildingInfo.Elevation)
+  - ChannelNum == len(InstrumentInfo.Channels)
+  - Channels[].ChannelNo are unique
 
-Exit-code contract (CLI): 0 = valid, 1 = validation errors, 2 = program/runtime.
+CLI exit codes: 0 = valid, 1 = validation errors, 2 = program/runtime.
 Warnings never fail validation.
 """
 
@@ -91,15 +94,10 @@ def _describe_schema_error(error) -> tuple[str | None, str | None]:
         return f"one of [{expected}]", actual
     if validator == "const":
         return _repr(value), actual
-    if validator == "minimum":
-        return f"number >= {value}", actual
-    if validator == "maximum":
-        return f"number <= {value}", actual
-    if validator in ("minLength", "minItems", "minProperties", "maxLength", "maxItems"):
-        return f"validator {validator} = {value}", actual
-    if validator == "required":
-        missing = ", ".join(_repr(v) for v in value)
-        return None, None
+    if validator in ("minimum", "exclusiveMinimum"):
+        return f"{validator} = {value}", actual
+    if validator == "maxItems" or validator == "minItems":
+        return f"{validator} = {value}", actual
     return None, None
 
 
@@ -131,126 +129,82 @@ def _schema_issues(metadata: dict, schema: dict) -> list[Issue]:
     return issues
 
 
-def _unique_ids(issues: list[Issue], items: Any, base_path: str, key: str, kind: str) -> set[str]:
-    ids: set[str] = set()
-    if not isinstance(items, list):
-        return ids
-    seen: dict[str, int] = {}
-    for index, item in enumerate(items):
-        if not isinstance(item, dict):
-            continue
-        value = item.get(key)
-        if not isinstance(value, str) or not value:
-            continue
-        if value in seen:
-            issues.append(
-                Issue(
-                    level="ERROR",
-                    path=f"{base_path}/{index}/{key}",
-                    code="duplicate.id",
-                    message=f"Duplicate {kind}: {value} (already used at index {seen[value]}).",
-                )
-            )
-        else:
-            seen[value] = index
-            ids.add(value)
-    return ids
-
-
 def _semantic_issues(metadata: dict) -> list[Issue]:
     issues: list[Issue] = []
 
-    instruments = metadata.get("Instruments")
-    instrument_ids = _unique_ids(
-        issues, instruments, "/Instruments", "InstrumentID", "Instrument ID"
-    )
-
-    monitoring = metadata.get("Monitoring")
-    sensors: Any = []
-    channels: Any = []
-    if isinstance(monitoring, dict):
-        sensors = monitoring.get("Sensors", [])
-        channels = monitoring.get("Channels", [])
-    sensor_ids = _unique_ids(issues, sensors, "/Monitoring/Sensors", "SensorID", "Sensor ID")
-    channel_ids = _unique_ids(
-        issues, channels, "/Monitoring/Channels", "ChannelID", "Channel ID"
-    )
-
-    # Level 2 references: Channel -> Sensor -> Instrument.
-    if isinstance(sensors, list):
-        for index, sensor in enumerate(sensors):
-            if not isinstance(sensor, dict):
-                continue
-            ref = sensor.get("InstrumentID")
-            if isinstance(ref, str) and ref and ref not in instrument_ids:
+    building = metadata.get("BuildingInfo")
+    if isinstance(building, dict):
+        elevation = building.get("Elevation")
+        num = building.get("ElevationNum")
+        if isinstance(elevation, list) and isinstance(num, int) and not isinstance(num, bool):
+            if num != len(elevation):
                 issues.append(
                     Issue(
                         level="ERROR",
-                        path=f"/Monitoring/Sensors/{index}/InstrumentID",
-                        code="reference.unknown-instrument",
-                        message=f"Unknown Instrument: {ref}",
-                        actual=ref,
+                        path="/BuildingInfo/ElevationNum",
+                        code="consistency.elevation-count",
+                        message="ElevationNum must equal the number of Elevation values.",
+                        expected=f"len(Elevation) = {len(elevation)}",
+                        actual=str(num),
                     )
                 )
-    if isinstance(channels, list):
-        for index, channel in enumerate(channels):
-            if not isinstance(channel, dict):
-                continue
-            ref = channel.get("SensorID")
-            if isinstance(ref, str) and ref and ref not in sensor_ids:
+            if not elevation:
+                issues.append(
+                    Issue("WARNING", "/BuildingInfo/Elevation", "missing.value",
+                          "Missing value."))
+        elif not elevation:
+            issues.append(
+                Issue("WARNING", "/BuildingInfo/Elevation", "missing.value",
+                      "Missing value."))
+
+    instruments = metadata.get("InstrumentInfo")
+    if isinstance(instruments, dict):
+        channels = instruments.get("Channels")
+        channel_num = instruments.get("ChannelNum")
+        if isinstance(channels, list) and isinstance(channel_num, int) and not isinstance(channel_num, bool):
+            if channel_num != len(channels):
                 issues.append(
                     Issue(
                         level="ERROR",
-                        path=f"/Monitoring/Channels/{index}/SensorID",
-                        code="reference.unknown-sensor",
-                        message=f"Unknown Sensor: {ref}",
-                        actual=ref,
+                        path="/InstrumentInfo/ChannelNum",
+                        code="consistency.channel-count",
+                        message="ChannelNum must equal the number of Channels.",
+                        expected=f"len(Channels) = {len(channels)}",
+                        actual=str(channel_num),
                     )
                 )
-
-    # Basic "known core value missing" warnings for groups the agent has opened.
-    def has_content(obj: Any) -> bool:
-        return isinstance(obj, dict) and any(
-            v not in (None, "", [], {}) for v in obj.values()
-        )
-
-    site = metadata.get("Site")
-    if isinstance(site, dict):
-        if not has_content(site):
-            issues.append(
-                Issue("WARNING", "/Site", "missing.value",
-                      "Empty group. Populate it from source materials or remove it."))
-        elif not site.get("SiteClass"):
-            issues.append(Issue("WARNING", "/Site/SiteClass", "missing.value",
-                                "Missing value."))
-    structure = metadata.get("Structure")
-    if isinstance(structure, dict):
-        if not has_content(structure):
-            issues.append(
-                Issue("WARNING", "/Structure", "missing.value",
-                      "Empty group. Populate it from source materials or remove it."))
-        elif structure.get("Stories") in (None, ""):
-            issues.append(Issue("WARNING", "/Structure/Stories", "missing.value",
-                                "Missing value."))
-    if isinstance(monitoring, dict):
-        if not has_content(monitoring):
-            issues.append(
-                Issue("WARNING", "/Monitoring", "missing.value",
-                      "Empty group. Populate it from source materials or remove it."))
-        else:
-            if "Sensors" not in monitoring:
-                issues.append(Issue("WARNING", "/Monitoring/Sensors", "missing.value",
-                                    "Missing value."))
-            if "Channels" not in monitoring:
-                issues.append(Issue("WARNING", "/Monitoring/Channels", "missing.value",
-                                    "Missing value."))
+            if not channels:
+                issues.append(
+                    Issue("WARNING", "/InstrumentInfo/Channels", "missing.value",
+                          "No channels defined."))
+            seen: dict[int, int] = {}
+            for index, channel in enumerate(channels):
+                if not isinstance(channel, dict):
+                    continue
+                no = channel.get("ChannelNo")
+                if isinstance(no, int) and not isinstance(no, bool):
+                    if no in seen:
+                        issues.append(
+                            Issue(
+                                level="ERROR",
+                                path=f"/InstrumentInfo/Channels/{index}/ChannelNo",
+                                code="duplicate.channel-no",
+                                message=f"Duplicate ChannelNo: {no} "
+                                        f"(already used by Channels[{seen[no]}]).",
+                                actual=str(no),
+                            )
+                        )
+                    else:
+                        seen[no] = index
     return issues
 
 
 def validate_dict(metadata: dict, schema: dict | None = None) -> ValidationResult:
-    """Validate parsed metadata object. Raises on non-object metadata."""
+    """Validate a qREST_DATA metadata object."""
     if not isinstance(metadata, dict):
-        raise ValueError(f"metadata.json must contain a JSON object, got {type(metadata).__name__}")
+        raise ValueError(
+            f"metadata.json must contain a JSON object, got {type(metadata).__name__}"
+        )
     if schema is None:
         schema = package_schema()
     issues = _schema_issues(metadata, schema)
@@ -266,6 +220,8 @@ def validate_file(metadata_path: Path | str, schema_path: Path | str | None = No
     except FileNotFoundError:
         raise FileNotFoundError(f"Metadata file not found: {path}")
     except json.JSONDecodeError as exc:
-        raise ValueError(f"Metadata file is not valid JSON: {path}: line {exc.lineno}: {exc.msg}")
+        raise ValueError(
+            f"Metadata file is not valid JSON: {path}: line {exc.lineno}: {exc.msg}"
+        )
     schema = load_schema(schema_path) if schema_path else None
     return validate_dict(metadata, schema)

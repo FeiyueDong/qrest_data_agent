@@ -2,47 +2,36 @@
 
 Source: monitoring.xlsx
 
-## Sheet: Devices
+## Sheet: Elevation
 
-Rows: 2
-Columns: 3
-
-Columns:
-
-- InstrumentID
-- InstrumentType
-- Model
-
-File:
-
-Devices.csv
-
-## Sheet: Sensors
-
-Rows: 4
-Columns: 4
+Rows: 17
+Columns: 2
 
 Columns:
 
-- SensorID
-- InstrumentID
-- Floor
-- Direction
+- Index
+- Elevation
 
 File:
 
-Sensors.csv
+Elevation.csv
 
 ## Sheet: Channels
 
-Rows: 5
-Columns: 3
+Rows: 19
+Columns: 9
 
 Columns:
 
+- ChannelNo
 - ChannelID
-- SensorID
-- ChannelNumber
+- DeviceType
+- Measurand
+- Scale
+- Azimuth
+- X
+- Y
+- Z
 
 File:
 

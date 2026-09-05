@@ -1,18 +1,18 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-06T00:28:53+08:00",
+  "updated_at": "2026-09-06T00:52:18+08:00",
   "entries": {
     "source/description.txt": {
       "parser": "text",
       "status": "ok",
-      "title": "昆明市某工程概况",
+      "title": "Kunming_SSJY qREST 测试数据",
       "output_files": [
         "parsed/description/document.txt"
       ],
       "metadata": {
         "encoding": "utf-8",
-        "lines": 7,
-        "chars": 81
+        "lines": 5,
+        "chars": 344
       },
       "warnings": [],
       "error": null

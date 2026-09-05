@@ -1,11 +1,8 @@
 # Project
 
-Name: Case 03 - PDF Source
+Name: Case 03 - PDF Source（Kunming_SSJY）
 
 ## User Description
 
-工程资料为结构设计报告 PDF：source/report.pdf。请整理元数据。
-
-## Goal
-
-output/metadata.json 必须通过 qrest-agent validate。
+工程资料为 source/report.pdf（Kunming_building_metadata_test_case），请生成 qREST_DATA
+元数据。传感器空间坐标请以用户另行提供的 data/kunming/metadata.json 为基准。

@@ -6,31 +6,55 @@
       "id": "heading-1",
       "type": "heading",
       "level": 1,
-      "heading": "设计说明"
+      "heading": "昆明隔震建筑工程信息提取测试案例"
     },
     {
       "id": "heading-2",
       "type": "heading",
-      "level": 1,
-      "heading": "结构主要参数"
-    },
-    {
-      "id": "table-1",
-      "type": "table",
-      "index": 1,
-      "heading": "结构主要参数"
+      "level": 2,
+      "heading": "1 工程概况"
     },
     {
       "id": "heading-3",
       "type": "heading",
-      "level": 1,
-      "heading": "监测系统设备"
+      "level": 2,
+      "heading": "2 结构体系与隔震层信息"
     },
     {
-      "id": "table-2",
-      "type": "table",
-      "index": 2,
-      "heading": "监测系统设备"
+      "id": "heading-4",
+      "type": "heading",
+      "level": 2,
+      "heading": "3 结构平面与测点空间布置"
+    },
+    {
+      "id": "heading-5",
+      "type": "heading",
+      "level": 2,
+      "heading": "4 健康监测系统"
+    },
+    {
+      "id": "heading-6",
+      "type": "heading",
+      "level": 2,
+      "heading": "5 传感器参数"
+    },
+    {
+      "id": "heading-7",
+      "type": "heading",
+      "level": 2,
+      "heading": "6 数据采集信息（测试数据）"
+    },
+    {
+      "id": "heading-8",
+      "type": "heading",
+      "level": 2,
+      "heading": "7 测点布置描述（自然语言形式）"
+    },
+    {
+      "id": "heading-9",
+      "type": "heading",
+      "level": 2,
+      "heading": "8 测试说明"
     }
   ]
 }
