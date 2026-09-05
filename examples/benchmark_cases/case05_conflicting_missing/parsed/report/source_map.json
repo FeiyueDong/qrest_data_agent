@@ -1,0 +1,24 @@
+{
+  "source": "report.pdf",
+  "parser": "pdf-v0.1",
+  "blocks": [
+    {
+      "id": "page-1",
+      "type": "page",
+      "page": 1,
+      "heading": "工程概况"
+    },
+    {
+      "id": "page-2",
+      "type": "page",
+      "page": 2,
+      "heading": "结构设计"
+    },
+    {
+      "id": "page-3",
+      "type": "page",
+      "page": 3,
+      "heading": "隔震设计"
+    }
+  ]
+}

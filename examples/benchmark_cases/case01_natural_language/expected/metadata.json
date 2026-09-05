@@ -1,0 +1,18 @@
+{
+  "SchemaVersion": "0.1.0",
+  "Project": {
+    "Name": "Kunming Building",
+    "Description": "14-storey base-isolated frame-shearwall building in Kunming."
+  },
+  "Site": {
+    "SiteClass": "III"
+  },
+  "Structure": {
+    "StructureType": "FrameShearWall",
+    "Stories": 14,
+    "Height": 47.4,
+    "IsolationSystem": true,
+    "IsolationType": "LeadRubberBearing",
+    "SeismicDesignIntensity": 8
+  }
+}

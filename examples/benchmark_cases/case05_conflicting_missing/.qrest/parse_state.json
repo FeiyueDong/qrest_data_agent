@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "updated_at": "2026-09-06T00:28:55+08:00",
+  "entries": {
+    "source/note.txt": {
+      "parser": "text",
+      "status": "ok",
+      "title": "说明文件（可能过时）",
+      "output_files": [
+        "parsed/note/document.txt"
+      ],
+      "metadata": {
+        "encoding": "utf-8",
+        "lines": 2,
+        "chars": 42
+      },
+      "warnings": [],
+      "error": null
+    },
+    "source/report.pdf": {
+      "parser": "pdf",
+      "status": "ok",
+      "title": "工程概况",
+      "output_files": [
+        "parsed/report/document.md",
+        "parsed/report/source_map.json"
+      ],
+      "metadata": {
+        "pages": 3,
+        "chars": 129,
+        "headings": [
+          "工程概况",
+          "结构设计",
+          "隔震设计"
+        ],
+        "scanned_pdf": false
+      },
+      "warnings": [],
+      "error": null
+    }
+  }
+}

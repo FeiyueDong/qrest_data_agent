@@ -1,0 +1,34 @@
+{
+  "SchemaVersion": "0.1.0",
+  "Project": {
+    "Name": "Kunming Building"
+  },
+  "Instruments": [
+    {
+      "InstrumentID": "INS-001",
+      "InstrumentType": "DataAcquisitionSystem"
+    }
+  ],
+  "Monitoring": {
+    "Sensors": [
+      {
+        "SensorID": "S001",
+        "InstrumentID": "INS-001"
+      },
+      {
+        "SensorID": "S001",
+        "InstrumentID": "INS-001"
+      }
+    ],
+    "Channels": [
+      {
+        "ChannelID": "CH-001",
+        "SensorID": "S001"
+      },
+      {
+        "ChannelID": "CH-002",
+        "SensorID": "S001"
+      }
+    ]
+  }
+}

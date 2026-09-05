@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qrest-agent"
+version = "0.1.0"
+description = "qREST Agent V0.1 - deterministic document core, metadata schema and validator for qREST engineering metadata"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+  "jsonschema>=4.20",
+  "pypdf>=4.0",
+  "python-docx>=1.1",
+  "openpyxl>=3.1",
+]
+
+[project.scripts]
+qrest-agent = "qrest_agent.cli:main"
+qrest-validate = "qrest_agent.cli:qrest_validate_main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = [
+  "qrest_agent",
+  "qrest_agent.workspace",
+  "qrest_agent.documents",
+  "qrest_agent.metadata",
+]
+
+[tool.setuptools.package-data]
+qrest_agent = ["assets/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

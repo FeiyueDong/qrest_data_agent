@@ -1,0 +1,68 @@
+{
+  "SchemaVersion": "0.1.0",
+  "Project": {
+    "Name": "Kunming Building"
+  },
+  "Site": {
+    "SiteClass": "III"
+  },
+  "Structure": {
+    "StructureType": "FrameShearWall",
+    "Stories": 14,
+    "Height": 47.4,
+    "IsolationSystem": true,
+    "IsolationType": "LeadRubberBearing",
+    "SeismicDesignIntensity": 8
+  },
+  "Instruments": [
+    {
+      "InstrumentID": "INS-001",
+      "InstrumentType": "DataAcquisitionSystem",
+      "Model": "QDA-2000"
+    }
+  ],
+  "Monitoring": {
+    "Sensors": [
+      {
+        "SensorID": "S001",
+        "InstrumentID": "INS-001",
+        "Floor": "1",
+        "Direction": "X"
+      },
+      {
+        "SensorID": "S002",
+        "InstrumentID": "INS-001",
+        "Floor": "8",
+        "Direction": "Y"
+      },
+      {
+        "SensorID": "S003",
+        "InstrumentID": "INS-001",
+        "Floor": "14",
+        "Direction": "Z"
+      }
+    ],
+    "Channels": [
+      {
+        "ChannelID": "CH-001",
+        "SensorID": "S001",
+        "ChannelNumber": 1
+      },
+      {
+        "ChannelID": "CH-002",
+        "SensorID": "S002",
+        "ChannelNumber": 2
+      },
+      {
+        "ChannelID": "CH-003",
+        "SensorID": "S003",
+        "ChannelNumber": 3
+      },
+      {
+        "ChannelID": "CH-004",
+        "SensorID": "S001",
+        "ChannelNumber": 4
+      }
+    ]
+  }
+}

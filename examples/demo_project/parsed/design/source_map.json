@@ -1,0 +1,36 @@
+{
+  "source": "design.docx",
+  "parser": "docx-v0.1",
+  "blocks": [
+    {
+      "id": "heading-1",
+      "type": "heading",
+      "level": 1,
+      "heading": "设计说明"
+    },
+    {
+      "id": "heading-2",
+      "type": "heading",
+      "level": 1,
+      "heading": "结构主要参数"
+    },
+    {
+      "id": "table-1",
+      "type": "table",
+      "index": 1,
+      "heading": "结构主要参数"
+    },
+    {
+      "id": "heading-3",
+      "type": "heading",
+      "level": 1,
+      "heading": "监测系统设备"
+    },
+    {
+      "id": "table-2",
+      "type": "table",
+      "index": 2,
+      "heading": "监测系统设备"
+    }
+  ]
+}

@@ -1,0 +1,233 @@
+"""qrest-agent CLI: init / parse / index / validate (V0.1)."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+from typing import Sequence
+
+from qrest_agent import __version__
+from qrest_agent.documents import parse_directory
+from qrest_agent.metadata.validator import validate_file
+from qrest_agent.workspace import (
+    ProjectError,
+    find_project_root,
+    init_project,
+    read_parse_state,
+    update_index,
+    write_parse_state,
+)
+
+PROG = "qrest-agent"
+
+
+def _rel_project(root: Path, path: Path) -> str:
+    return path.absolute().relative_to(root.absolute()).as_posix()
+
+
+def _print_validation(result, metadata_path: Path, schema_path: Path | None) -> None:
+    print("qREST Metadata Validation")
+    print("")
+    print(f"File:   {metadata_path}")
+    if schema_path:
+        print(f"Schema: {schema_path}")
+    print("")
+    errors = result.errors
+    warnings = result.warnings
+    print(f"ERRORS: {len(errors)}")
+    print(f"WARNINGS: {len(warnings)}")
+    print("")
+    ordered = errors + warnings
+    for issue in ordered:
+        for line in issue.render():
+            print(line)
+        print("")
+    if not errors:
+        print("Validation passed.")
+
+
+def _add_common_parser(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--project", default=None, help="qREST project root (default: auto-discover)")
+
+
+def cmd_init(args: argparse.Namespace) -> int:
+    try:
+        root = init_project(args.name, parent=args.parent, force=args.force)
+    except ProjectError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
+    print(f"Created qREST project: {root}")
+    print("")
+    for name in ("AGENTS.md", "PROJECT.md", "schema/metadata.schema.json",
+                 "source/", "parsed/", "output/metadata.json", ".qrest/"):
+        print(f"  {name}")
+    print("")
+    print("Next: cd into the project, put engineering files into source/, then run:")
+    print("  qrest-agent parse")
+    return 0
+
+
+def cmd_parse(args: argparse.Namespace) -> int:
+    try:
+        root = find_project_root(args.project or Path.cwd())
+        source_dir = root / "source"
+        parsed_dir = root / "parsed"
+        source_dir.mkdir(parents=True, exist_ok=True)
+        parsed_dir.mkdir(parents=True, exist_ok=True)
+        report = parse_directory(source_dir, parsed_dir)
+    except (ProjectError, OSError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
+
+    state = read_parse_state(root)
+    entries = state.setdefault("entries", {})
+    from qrest_agent.documents import parser_for_path
+
+    for result in report.results:
+        rel_source = _rel_project(root, result.source)
+        parser = parser_for_path(result.source)
+        entries[rel_source] = {
+            "parser": parser.name if parser else "unknown",
+            "status": "ok",
+            "title": result.title,
+            "output_files": [_rel_project(root, p) for p in result.output_files],
+            "metadata": result.metadata,
+            "warnings": result.warnings,
+            "error": None,
+        }
+    for failure in report.failures:
+        rel_source = _rel_project(root, failure.source)
+        entries[rel_source] = {
+            "parser": None,
+            "status": "error",
+            "title": None,
+            "output_files": [],
+            "metadata": {},
+            "warnings": [],
+            "error": failure.error,
+        }
+    write_parse_state(root, state)
+    index_path = update_index(root, state)
+
+    print(f"Project: {root}")
+    print(f"Parsed files:   {len(report.results)}")
+    print(f"Failed files:   {len(report.failures)}")
+    print(f"Skipped (unsupported): {len(report.skipped)}")
+    for failure in report.failures:
+        print(f"  FAILED {_rel_project(root, failure.source)}: {failure.error}")
+    for result in report.results:
+        for warning in result.warnings:
+            print(f"  WARNING {_rel_project(root, result.source)}: {warning}")
+    print(f"Index: {_rel_project(root, index_path)}")
+    return 1 if report.failures else 0
+
+
+def cmd_index(args: argparse.Namespace) -> int:
+    try:
+        root = find_project_root(args.project or Path.cwd())
+        state = read_parse_state(root)
+        index_path = update_index(root, state)
+    except (ProjectError, OSError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
+    print(f"Updated: {index_path}")
+    return 0
+
+
+def cmd_validate(args: argparse.Namespace) -> int:
+    root: Path | None = None
+    try:
+        if args.project:
+            root = find_project_root(args.project)
+        elif args.metadata:
+            try:
+                root = find_project_root(Path(args.metadata).resolve().parent)
+            except ProjectError:
+                root = None  # standalone file validation uses the package schema
+        else:
+            root = find_project_root(Path.cwd())
+        if root is None and not args.metadata:
+            raise ProjectError("No project found; give a metadata.json path or run inside a project.")
+        metadata_path = (
+            Path(args.metadata).resolve() if args.metadata else root / "output" / "metadata.json"
+        )
+        if args.schema:
+            schema_path = Path(args.schema).resolve()
+        elif root is not None and (root / "schema" / "metadata.schema.json").is_file():
+            schema_path = root / "schema" / "metadata.schema.json"
+        else:
+            schema_path = None
+        result = validate_file(metadata_path, schema_path)
+    except ProjectError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
+    except (FileNotFoundError, ValueError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
+    _print_validation(result, metadata_path, schema_path)
+    return 0 if result.valid else 1
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog=PROG,
+        description="qREST Agent V0.1: workspace + document core + metadata validator.",
+    )
+    parser.add_argument("--version", action="version", version=f"qrest-agent {__version__}")
+    sub = parser.add_subparsers(dest="command", required=True, metavar="COMMAND")
+
+    p_init = sub.add_parser("init", help="create a new qREST project directory")
+    p_init.add_argument("name", help="project directory name")
+    p_init.add_argument("--parent", default=".", help="parent directory (default: current)")
+    p_init.add_argument("--force", action="store_true", help="fill missing files in an existing directory")
+    p_init.set_defaults(func=cmd_init)
+
+    for name, help_text in (
+        ("parse", "parse all supported files in source/ into parsed/"),
+        ("index", "rebuild parsed/PROJECT_INDEX.md from .qrest/parse_state.json"),
+    ):
+        p = sub.add_parser(name, help=help_text)
+        _add_common_parser(p)
+        p.set_defaults(func=cmd_index if name == "index" else cmd_parse)
+
+    p_validate = sub.add_parser("validate", help="validate output/metadata.json")
+    _add_common_parser(p_validate)
+    p_validate.add_argument("metadata", nargs="?", default=None,
+                            help="path to metadata.json (default: output/metadata.json)")
+    p_validate.add_argument("--schema", default=None, help="override schema path")
+    p_validate.set_defaults(func=cmd_validate)
+
+    return parser
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    try:
+        return int(args.func(args))
+    except KeyboardInterrupt:
+        print("Interrupted.", file=sys.stderr)
+        return 130
+
+
+def qrest_validate_main(argv: Sequence[str] | None = None) -> int:
+    """Standalone qrest-validate [metadata.json] entry point."""
+    parser = argparse.ArgumentParser(
+        prog="qrest-validate",
+        description="Validate a qREST metadata.json file. Exit: 0 valid, 1 validation error, 2 runtime error.",
+    )
+    parser.add_argument("metadata", nargs="?", default=None,
+                        help="metadata.json path (default: output/metadata.json in project)")
+    parser.add_argument("--project", default=None, help="qREST project root")
+    parser.add_argument("--schema", default=None, help="override schema path")
+    args = parser.parse_args(argv)
+    synthetic = argparse.Namespace(
+        project=args.project, metadata=args.metadata, schema=args.schema, func=cmd_validate
+    )
+    return cmd_validate(synthetic)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
