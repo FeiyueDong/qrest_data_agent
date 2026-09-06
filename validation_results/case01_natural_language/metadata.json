@@ -1,0 +1,48 @@
+{
+  "Header": "qREST_DATA",
+  "Version": [
+    1,
+    0,
+    0
+  ],
+  "Units": [
+    "m",
+    "s"
+  ],
+  "BuildingInfo": {
+    "ProjectName": "Kunming_SSJY",
+    "GeoLocation": {
+      "Longitude": 0.0,
+      "Latitude": 0.0,
+      "NorthAngle": 0.0
+    },
+    "StructuralType": "SteelFrame",
+    "StructuralFootprint": {
+      "Shape": "Rectangular",
+      "Parameters": {
+        "Length": 42.0,
+        "Width": 25.2
+      },
+      "BoundingBox": {
+        "MaxX": 21.0,
+        "MinX": -21.0,
+        "MaxY": 12.6,
+        "MinY": -12.6
+      }
+    },
+    "ElevationNum": 0,
+    "Elevation": []
+  },
+  "InstrumentInfo": {
+    "Provider": "SSJY",
+    "ChannelNum": 0,
+    "Channels": []
+  },
+  "DataInfo": {
+    "EventName": "2025_MYANMAR_7.9",
+    "StartTime": "2025-03-28T14:20:00.000+08:00",
+    "NPTS": 30000,
+    "DT": 0.02,
+    "Corrected": "NULL"
+  }
+}

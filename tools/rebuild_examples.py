@@ -92,13 +92,15 @@ Name: Case 01 - Natural Language Only（Kunming_SSJY）
 
 昆明市一栋14层（地下2层）隔震建筑，主体结构高度47.4 m，平面约42 m x 25.2 m。
 永久监测系统含18个单向加速度通道，覆盖6个高度位置（B1F、1F、3F、6F、9F、13F），
-每层3个测点（左右 + 中部）。设备供应商 SSJY，事件 2025_MYANMAR_7.9，
+每层3个测点（左右 + 中部）。供应商 SSJY，事件 2025_MYANMAR_7.9，
 开始 2025-03-28 14:20:00（UTC+8），DT=0.02 s，NPTS=30000。
-空间坐标/标高以 data/kunming/metadata.json 为基准（用户已提供）。
+
+注意：本文没有给出精确的空间坐标（LocationXYZ）。无法确定的字段不得编造；
+如果资料不足以生成完整 qREST_DATA，请明确列出缺失项并说明需要补充的资料。
 
 ## Goal
 
-output/metadata.json 为符合 qREST_DATA 格式的完整元数据。
+建立符合 qREST_DATA 格式的 output/metadata.json 并运行 qrest-agent validate。
 """,
     )
     copy_expected(p, km)
@@ -106,7 +108,7 @@ output/metadata.json 为符合 qREST_DATA 格式的完整元数据。
         p / "CHECKLIST.md",
         """# Case 01 Checklist
 
-- 仅自然语言 + data/kunming 基准。
+- 仅自然语言；缺少精确坐标/标高配置时应显式报告，不得编造。
 - Header/Version/Units 必须正确；ElevationNum==len(Elevation)、ChannelNum==len(Channels)。
 - 不得虚构 source 中不存在的设备型号/坐标。
 """,
@@ -138,7 +140,7 @@ Event: 2025_MYANMAR_7.9  Start: 2025-03-28T14:20:00.000+08:00  NPTS: 30000  DT: 
     parse(p)
     write(
         p / "CHECKLIST.md",
-        """Case 02: TXT 描述 + data/kunming 基准；必须通过 Schema 与一致性校验。
+Case 02: TXT 描述；验证 parse -> read -> metadata 链路。
 """,
     )
 
@@ -152,8 +154,13 @@ Name: Case 03 - PDF Source（Kunming_SSJY）
 
 ## User Description
 
-工程资料为 source/report.pdf（Kunming_building_metadata_test_case），请生成 qREST_DATA
-元数据。传感器空间坐标请以用户另行提供的 data/kunming/metadata.json 为基准。
+工程资料为 source/report.pdf（Kunming_building_metadata_test_case）。
+请从 PDF 中识别楼层、结构、测点布置与事件采样参数并生成 qREST_DATA 元数据。
+PDF 未给出精确坐标/通道明细时，不得编造 LocationXYZ 或 Channels，请在汇报中列出缺失。
+
+## Goal
+
+建立符合 qREST_DATA 格式的 output/metadata.json 并运行 qrest-agent validate。
 """,
     )
     shutil.copy(input_pdf, p / "source" / "report.pdf")
@@ -161,7 +168,7 @@ Name: Case 03 - PDF Source（Kunming_SSJY）
     parse(p)
     write(
         p / "CHECKLIST.md",
-        """Case 03: PDF 全文提取；重点识别楼层/18通道/事件参数；坐标来自 data/kunming。
+Case 03: PDF 全文提取；记录文档缺失的通道/标高明细。
 """,
     )
 
@@ -216,13 +223,13 @@ Name: Case 05 - Conflicting / Missing Information（Kunming_SSJY）
 
 ## User Description
 
-source/report.pdf 与 source/note.txt 对同一建筑的部分参数描述冲突
-（见 expected/REPORT.md）。不要擅自选值：冲突字段保留基准数据
-（data/kunming/metadata.json），并在汇报中向用户说明。
+source/report.pdf 与 source/note.txt 对同一建筑的部分参数描述冲突。
+若冲突无法可靠裁决，不要擅自二选一：保留空缺或明确标注，并在最终汇报中列出冲突项，
+等待用户提供权威资料。
 
 ## Goal
 
-output/metadata.json 通过 qrest-agent validate（无 ERROR）。
+生成 output/metadata.json；Validator 无 ERROR 时方可视为完成（缺失必须显式汇报）。
 """,
     )
     shutil.copy(input_pdf, p / "source" / "report.pdf")
@@ -237,7 +244,7 @@ output/metadata.json 通过 qrest-agent validate（无 ERROR）。
     write(
         p / "expected" / "REPORT.md",
         """冲突记录
-- Stories/Height: report.pdf=14层/47.4m；note.txt=15层/48.0m。以基准 data/kunming 的
+- 冲突以报告形式记录；在得到权威资料前不得在元数据中二选一。
   14层/47.4m 为准，需向用户说明。
 - Channels: report.pdf/基准=18；note.txt=20。以18为准，需向用户说明。
 """,

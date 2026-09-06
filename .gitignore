@@ -5,3 +5,4 @@ __pycache__/
 .pytest_cache/
 dist/
 build/
+.tmp_agent_runs/

@@ -2,6 +2,7 @@
 from qrest_agent.workspace.project import (
     ProjectError,
     find_project_root,
+    fresh_parse_state,
     init_project,
     read_parse_state,
     read_project_json,
@@ -12,6 +13,7 @@ from qrest_agent.workspace.index import update_index
 __all__ = [
     "ProjectError",
     "find_project_root",
+    "fresh_parse_state",
     "init_project",
     "read_project_json",
     "read_parse_state",

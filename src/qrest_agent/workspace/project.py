@@ -154,14 +154,28 @@ def read_project_json(root: Path | str) -> dict[str, Any]:
 
 
 def read_parse_state(root: Path | str) -> dict[str, Any]:
+    """Read .qrest/parse_state.json; corrupted state fails closed."""
     path = Path(root) / ".qrest" / "parse_state.json"
-    if path.is_file():
-        try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-            if isinstance(data, dict) and "entries" in data:
-                return data
-        except json.JSONDecodeError:
-            pass
+    if not path.is_file():
+        raise ProjectError(
+            f"Parse state missing: {path}. Run 'qrest-agent parse' to rebuild it."
+        )
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ProjectError(
+            f"Parse state is corrupted ({path}): {exc} - "
+            "do not trust stale parsed/ files; run 'qrest-agent parse' to rebuild."
+        ) from exc
+    if not isinstance(data, dict) or not isinstance(data.get("entries"), dict):
+        raise ProjectError(
+            f"Parse state has an invalid structure ({path}); "
+            "run 'qrest-agent parse' to rebuild it."
+        )
+    return data
+
+
+def fresh_parse_state() -> dict[str, Any]:
     return {"schema": STATE_SCHEMA, "updated_at": None, "entries": {}}
 
 

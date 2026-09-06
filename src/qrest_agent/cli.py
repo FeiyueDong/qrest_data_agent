@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Sequence
 
 from qrest_agent import __version__
-from qrest_agent.documents import parse_directory
+from qrest_agent.documents import parse_directory, plan_parse_outputs
 from qrest_agent.metadata.validator import validate_file
 from qrest_agent.workspace import (
     ProjectError,
@@ -19,6 +19,7 @@ from qrest_agent.workspace import (
     update_index,
     write_parse_state,
 )
+from qrest_agent.workspace.project import fresh_parse_state
 
 PROG = "qrest-agent"
 
@@ -26,6 +27,38 @@ PROG = "qrest-agent"
 def _rel_project(root: Path, path: Path) -> str:
     return path.absolute().relative_to(root.absolute()).as_posix()
 
+
+
+def _purge_stale_parsed(root: Path, planned_outputs: list[Path]) -> int:
+    """Remove generated parsed files that no current source owns.
+
+    parsed/PROJECT_INDEX.md is preserved; every other unplanned file/dir is
+    considered stale and removed so an Agent never sees old source content.
+    """
+    parsed = root / "parsed"
+    if not parsed.is_dir():
+        return 0
+    planned = {p.resolve() for p in planned_outputs}
+    removed = 0
+
+    def walk(directory: Path, top: bool = False) -> None:
+        nonlocal removed
+        for child in list(directory.iterdir()):
+            if top and child.name == "PROJECT_INDEX.md":
+                continue
+            if child.is_dir():
+                if child.resolve() in planned:
+                    continue
+                walk(child)
+                if not any(child.iterdir()):
+                    child.rmdir()
+                    removed += 1
+            else:
+                child.unlink()
+                removed += 1
+
+    walk(parsed, top=True)
+    return removed
 
 def _print_validation(result, metadata_path: Path, schema_path: Path | None) -> None:
     print("qREST Metadata Validation")
@@ -81,10 +114,20 @@ def cmd_parse(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 2
 
-    state = read_parse_state(root)
-    entries = state.setdefault("entries", {})
+    state_rebuilt = False
+    try:
+        state = read_parse_state(root)
+    except ProjectError as exc:
+        # fail closed: never reuse a damaged state; parse is a full rebuild
+        print(f"WARNING: {exc}", file=sys.stderr)
+        print("WARNING: rebuilding .qrest/parse_state.json from current source/ ...",
+              file=sys.stderr)
+        state = fresh_parse_state()
+        state_rebuilt = True
+
     from qrest_agent.documents import parser_for_path
 
+    entries: dict = {}
     for result in report.results:
         rel_source = _rel_project(root, result.source)
         parser = parser_for_path(result.source)
@@ -108,6 +151,10 @@ def cmd_parse(args: argparse.Namespace) -> int:
             "warnings": [],
             "error": failure.error,
         }
+    state["entries"] = entries
+
+    _, planned = plan_parse_outputs(source_dir, parsed_dir)
+    removed_stale = _purge_stale_parsed(root, list(planned.values()))
     write_parse_state(root, state)
     index_path = update_index(root, state)
 
@@ -115,6 +162,8 @@ def cmd_parse(args: argparse.Namespace) -> int:
     print(f"Parsed files:   {len(report.results)}")
     print(f"Failed files:   {len(report.failures)}")
     print(f"Skipped (unsupported): {len(report.skipped)}")
+    if removed_stale:
+        print(f"Removed stale parsed items: {removed_stale}")
     for failure in report.failures:
         print(f"  FAILED {_rel_project(root, failure.source)}: {failure.error}")
     for result in report.results:

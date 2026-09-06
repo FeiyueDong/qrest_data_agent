@@ -151,3 +151,26 @@ AGENTS.md 能力：
 
 Agent 读取 AGENTS.md、PROJECT.md、parsed/PROJECT_INDEX.md，自行执行
 qrest-agent parse / qrest-validate 并修改 output/metadata.json。
+
+## V0.11 通用 Coding Agent 验证（初步）
+
+验证计划：docs/qREST Agent V0.11 通用 Coding Agent 初步验证计划.md。
+
+已完成：
+
+- Parser 状态可靠性：qrest-agent parse 后 parsed/ 与 .qrest/parse_state.json
+  只反映当前 source/（删除/改名/解析失败的旧输出会被清理）。
+- parse_state 损坏时 fail closed：index/validate 明确报错，parse 会显式重建。
+- 仓库静态资源与 package assets 一致性测试（schema、AGENTS.md、模板）。
+- 答案隔离：expected/ 与 CHECKLIST.md 不进入 Agent 运行 Workspace。
+
+创建干净 Agent Workspace：
+
+    python tools/prepare_agent_case.py case03_pdf --root .tmp_agent_runs
+    python tools/prepare_agent_case.py all --root .tmp_agent_runs
+
+第一轮结果（五个 Case 的执行产物与评估）：
+
+    validation_results/
+    ├── README.md
+    └── case*/{metadata.json, evaluation.md}

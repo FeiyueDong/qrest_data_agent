@@ -1,6 +1,7 @@
 """Deterministic document parsers (no LLM dependency)."""
 
 from pathlib import Path
+import shutil
 
 from qrest_agent.documents.base import (
     ParseError,
@@ -48,11 +49,16 @@ def parse_file(source, parsed_dir, output_dir=None):
     return parser.parse(Path(source), Path(output_dir))
 
 
-def parse_directory(source_dir, parsed_dir):
-    """Parse every supported file under source_dir; failures never abort others."""
-    source_root = Path(source_dir)
-    parsed_root = Path(parsed_dir)
-    recognized = []
+
+def plan_parse_outputs(source_root, parsed_root):
+    """Plan deterministic per-source output dirs for the current source set.
+
+    Returns ``(recognized_files, planned)`` where planned maps each recognized
+    source file to its output directory. Colliding stems get a -N suffix.
+    """
+    source_root = Path(source_root)
+    parsed_root = Path(parsed_root)
+    recognized: list[Path] = []
     for path in sorted(source_root.rglob("*")):
         if not path.is_file():
             continue
@@ -63,25 +69,40 @@ def parse_directory(source_dir, parsed_dir):
     counts: dict[Path, int] = {}
     for path in recognized:
         rel_parent = path.parent.relative_to(source_root)
-        base = parsed_root.joinpath(rel_parent, Path(path).stem)
-        if base not in counts:
-            counts[base] = 0
-        counts[base] += 1
+        base = parsed_root.joinpath(rel_parent, path.stem)
+        counts[base] = counts.get(base, 0) + 1
         if counts[base] == 1:
             planned[path] = base
         else:
             planned[path] = base.with_name(f"{base.name}-{counts[base]}")
+    return recognized, planned
+
+def parse_directory(source_dir, parsed_dir):
+    """Parse every supported file under source_dir; failures never abort others.
+
+    Every planned output dir is removed first so a failed re-parse cannot leave
+    stale files that look current.
+    """
+    source_root = Path(source_dir)
+    parsed_root = Path(parsed_dir)
+    recognized, planned = plan_parse_outputs(source_root, parsed_root)
 
     results: list[ParseResult] = []
     failures: list[ParseFailure] = []
     skipped: list[Path] = []
     for path in recognized:
+        output_dir = planned[path]
+        if output_dir.exists():
+            shutil.rmtree(output_dir)  # parser owns this generated dir
         try:
-            results.append(parser_for_path(path).parse(path, planned[path]))
+            results.append(parser_for_path(path).parse(path, output_dir))
         except Exception as exc:  # parser contract: explicit report
-            failures.append(ParseFailure(source=path, error=str(exc) or exc.__class__.__name__))
+            failures.append(
+                ParseFailure(source=path, error=str(exc) or exc.__class__.__name__)
+            )
     for path in sorted(source_root.rglob("*")):
         if not path.is_file() or path in recognized:
             continue
         skipped.append(path)
+    "plan_parse_outputs",
     return ParseReport(results=results, failures=failures, skipped=skipped)
