@@ -6,7 +6,7 @@ FACTS_SCHEMA_NAME = "extraction_facts.schema.json"
 ISSUES_SCHEMA_NAME = "extraction_issues.schema.json"
 
 PROVENANCES = ("user", "document", "derived", "default")
-ISSUE_TYPES = ("missing", "partial", "conflict", "uncertain", "invalid")
+ISSUE_TYPES = ("missing", "partial", "conflict", "uncertain")
 SEVERITIES = ("blocking", "warning", "info")
 
 # Keys the Agent should use when writing working/facts.json (V0.2 scope).

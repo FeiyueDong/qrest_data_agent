@@ -67,12 +67,49 @@
             "items": {
               "type": "string",
               "minLength": 1
-            }
+            },
+            "minItems": 1
           },
           "note": {
             "type": "string"
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "provenance": {
+                  "const": "document"
+                }
+              },
+              "required": [
+                "provenance"
+              ]
+            },
+            "then": {
+              "required": [
+                "source"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "provenance": {
+                  "const": "derived"
+                }
+              },
+              "required": [
+                "provenance"
+              ]
+            },
+            "then": {
+              "required": [
+                "derived_from"
+              ]
+            }
+          }
+        ]
       }
     }
   }

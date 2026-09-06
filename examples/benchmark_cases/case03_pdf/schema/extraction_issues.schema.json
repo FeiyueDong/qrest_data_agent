@@ -29,8 +29,7 @@
               "missing",
               "partial",
               "conflict",
-              "uncertain",
-              "invalid"
+              "uncertain"
             ]
           },
           "key": {
@@ -73,7 +72,8 @@
                   }
                 }
               }
-            }
+            },
+            "minItems": 2
           },
           "source": {
             "type": "object",
@@ -97,7 +97,26 @@
               "type": "string"
             }
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "conflict"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "required": [
+                "candidates"
+              ]
+            }
+          }
+        ]
       }
     }
   }

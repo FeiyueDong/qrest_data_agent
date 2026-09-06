@@ -156,3 +156,18 @@ def test_cli_status_and_export_flow(run_cli, tmp_path: Path) -> None:
     validated = run_cli(["validate"], cwd=project)
     assert validated.returncode == 0
     assert "Validation passed." in validated.stdout
+    current = run_cli(["status"], cwd=project)
+    assert "Output: CURRENT" in current.stdout
+
+    # break the extraction state -> NEEDS_INPUT and the old output becomes STALE
+    facts = json.loads((project / "working" / "facts.json").read_text(encoding="utf-8"))
+    facts["facts"] = [f for f in facts["facts"] if f["key"] != "data.npts"]
+    (project / "working" / "facts.json").write_text(
+        json.dumps(facts, ensure_ascii=False, indent=2), encoding="utf-8",
+    )
+    stale_status = run_cli(["status"], cwd=project)
+    assert "Status: NEEDS_INPUT" in stale_status.stdout
+    assert "Output: STALE" in stale_status.stdout
+    stale_validate = run_cli(["validate"], cwd=project)
+    assert stale_validate.returncode == 0  # file itself still valid
+    assert "not CURRENT" in stale_validate.stdout

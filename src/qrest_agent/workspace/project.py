@@ -135,6 +135,7 @@ def init_project(name: str, parent: Path | str = ".", force: bool = False) -> Pa
                 "name": display,
                 "qrest_version": __version__,
                 "metadata_schema_version": SCHEMA_VERSION,
+                "extraction_schema_version": "1.0.0",
                 "created_at": _now_iso(),
             },
             ensure_ascii=False,

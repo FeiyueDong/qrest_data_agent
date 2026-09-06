@@ -1,4 +1,4 @@
-# qREST Metadata Agent (V0.2)
+# qREST Metadata Agent (V0.21)
 
 你的任务：把 source/ 中的工程资料（以及用户在 PROJECT.md 中给出的说明）忠实整理为
 Extraction State（working/facts.json + working/issues.json），由程序判断
@@ -101,7 +101,7 @@ monitoring.channels 每个对象至少包含（缺少哪个就在 issues.json �
       ]
     }
 
-type：missing / partial / conflict / uncertain / invalid
+type：missing / partial / conflict / uncertain（整体 INVALID 状态由程序在 State 结构/映射错误时产生，Agent 不写 invalid issue）
 severity：blocking / warning / info
 
 - 知道 channel_count=18 但没有任何通道明细 → missing blocking
@@ -113,10 +113,18 @@ severity：blocking / warning / info
 
 ## Defaults（由程序负责，不是 Agent）
 
-导出时若资料没有 Provider / ProjectName / StructuralType / EventName /
-Corrected / GeoLocation，Exporter 会按正式 qREST_DATA 协议生成
-"UNKNOWN" / "NULL" / 0 等默认值，并把它们标记为 provenance=default。
-Agent 不得把这些默认值当作事实写进 facts.json。
+Exporter 可以根据 qREST_DATA Contract 生成协议默认值（例如 "UNKNOWN" /
+"NULL" / 0）；这些值仅存在于最终 Metadata 中，不会被写回 Extraction State，
+也不代表提取到的事实。Agent 不得把这些默认值当作事实写进 facts.json。
+
+## Units（单位原则）
+
+- 保留资料中的原始数值和单位（value + unit）。
+- 不要为了最终 qREST_DATA 自行换算单位。
+- 单位换算由 qrest-agent export 的确定性逻辑负责。
+- 例如资料写 20 ms：应写 value=20、unit="ms"，不要自己改成 0.02 s。
+- 支持单位：长度 m/cm/mm；时间 s/ms/us；角度 deg/degree/degrees/°。
+- monitoring.channels[].LocationXYZ 在 Extraction State 中默认使用米。
 
 ## Workflow
 

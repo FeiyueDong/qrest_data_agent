@@ -36,22 +36,10 @@
       "maxItems": 3
     },
     "Units": {
-      "description": "Units of coordinates and time used by the record.",
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "allOf": [
-        {
-          "contains": {
-            "const": "m"
-          }
-        },
-        {
-          "contains": {
-            "const": "s"
-          }
-        }
+      "description": "qREST_DATA fixed canonical units.",
+      "const": [
+        "m",
+        "s"
       ]
     },
     "BuildingInfo": {

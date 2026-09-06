@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, FormatChecker
 
 from qrest_agent.metadata.schema import load_schema, package_schema
 
@@ -77,6 +77,16 @@ def _repr(value: Any) -> str:
     return str(value)
 
 
+
+def _valid_datetime(value: str) -> bool:
+    from datetime import datetime
+
+    try:
+        datetime.fromisoformat(value.replace("Z", "+00:00"))
+        return True
+    except ValueError:
+        return False
+
 def _describe_schema_error(error) -> tuple[str | None, str | None]:
     validator = error.validator
     value = error.validator_value
@@ -102,7 +112,7 @@ def _describe_schema_error(error) -> tuple[str | None, str | None]:
 
 
 def _schema_issues(metadata: dict, schema: dict) -> list[Issue]:
-    validator = Draft202012Validator(schema)
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
     issues: list[Issue] = []
     for error in sorted(validator.iter_errors(metadata), key=lambda e: _path(list(e.absolute_path))):
         parts = list(error.absolute_path)
@@ -126,6 +136,19 @@ def _schema_issues(metadata: dict, schema: dict) -> list[Issue]:
                 actual=actual,
             )
         )
+    data_info = metadata.get("DataInfo")
+    if isinstance(data_info, dict):
+        start = data_info.get("StartTime")
+        if isinstance(start, str) and not _valid_datetime(start):
+            issues.append(
+                Issue(
+                    level="ERROR",
+                    path="/DataInfo/StartTime",
+                    code="schema.format.date-time",
+                    message="StartTime must be a valid ISO-8601 date-time.",
+                    actual=repr(start),
+                )
+            )
     return issues
 
 

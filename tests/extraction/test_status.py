@@ -34,7 +34,7 @@ def test_complete_facts_are_ready() -> None:
 def test_channel_count_partial_is_needs_input() -> None:
     # Regression (V0.2 plan section 37): 18 known channels, only 12 defined.
     facts = [f for f in complete_facts(12) if f["key"] != "monitoring.channel_count"]
-    facts.append({"key": "monitoring.channel_count", "value": 18, "provenance": "document"})
+    facts.append({"key": "monitoring.channel_count", "value": 18, "provenance": "document", "source": {"file": "a.txt"}})
     result = evaluate_state(_facts(facts), _issues())
     assert result.status == STATUS_NEEDS_INPUT
     values = {f["key"]: f["value"] for f in facts}
@@ -46,7 +46,7 @@ def test_known_count_without_channel_rows_is_needs_input() -> None:
         f for f in complete_facts(3)
         if f["key"] not in ("monitoring.channel_count", "monitoring.channels")
     ]
-    facts.append({"key": "monitoring.channel_count", "value": 18, "provenance": "document"})
+    facts.append({"key": "monitoring.channel_count", "value": 18, "provenance": "document", "source": {"file": "a.txt"}})
     result = evaluate_state(_facts(facts), _issues())
     assert result.status == STATUS_NEEDS_INPUT
     assert any(i["key"] == "monitoring.channels" for i in result.blocking)
@@ -73,7 +73,7 @@ def test_blocking_conflict_issue_wins_over_complete() -> None:
 
 def test_duplicate_facts_with_different_values_are_conflict() -> None:
     facts = complete_facts(3)
-    facts.append({"key": "data.npts", "value": 9999, "provenance": "document"})
+    facts.append({"key": "data.npts", "value": 9999, "provenance": "document", "source": {"file": "a.txt"}})
     result = evaluate_state(_facts(facts), _issues())
     assert result.status == STATUS_CONFLICT
     assert any(i["key"] == "data.npts" for i in result.conflicts)

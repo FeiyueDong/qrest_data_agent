@@ -1,6 +1,6 @@
-# qREST Agent V0.1
+# qREST Agent V0.21
 
-面向建筑结构轻量化地震监测工程的 Metadata Agent 第一版。
+面向建筑结构轻量化地震监测工程的 Metadata Agent（V0.1 起连续演进至 V0.21）。
 
 设计目标（详见 docs/qREST Agent V0.1 第一版开发方案.md）：
 
@@ -15,8 +15,11 @@
 - PROJECT_INDEX.md
 - 正式 qREST_DATA JSON Schema（依据 data/metadata.json 注释版格式整理）
 - Metadata Validator（Schema + 一致性：ElevationNum / ChannelNum / ChannelNo）
-- CLI：init / parse / index / validate
-- 固定演示工程与 5 个 Benchmark 案例
+- CLI：init / parse / index / status / export / validate
+- 固定演示工程与 5（+2 个确定性 Contract 测试）个 Benchmark 案例
+- Output freshness：CURRENT / STALE / MISSING
+- 单位确定性归一化：m/cm/mm、s/ms/us、deg/degree/degrees/°
+- Project Schema Authority：status / export / validate 使用工程 schema/
 - 真实 qREST 示例数据：data/kunming、data/wuhan
 
 ## 安装
@@ -32,8 +35,10 @@
     cp report.pdf source/
     cp monitoring.xlsx source/
     qrest-agent parse
-    # 编辑 output/metadata.json（qREST_DATA 格式）
-    qrest-agent validate
+    # Agent（或人工）整理 working/facts.json + working/issues.json
+    qrest-agent status      # 期望 READY
+    qrest-agent export      # 生成 output/metadata.json（strict + CURRENT）
+    qrest-agent validate    # 0 ERROR / 0 WARNING
 
 也可以直接运行固定演示工程（真实输入文档 + data/kunming 完整结果）：
 
@@ -45,18 +50,21 @@
     MyProject/
     ├── AGENTS.md                 # Agent 规则（原则，不是硬编码工作流）
     ├── PROJECT.md                # 本工程描述与用户背景
-    ├── schema/metadata.schema.json
+    ├── schema/                   # metadata + extraction 两个 Schema（工程权威）
     ├── source/                   # 原始资料，Agent 不修改
     ├── parsed/                   # Parser 输出 + PROJECT_INDEX.md
-    ├── output/metadata.json      # qREST_DATA 元数据（Agent 最终产物）
-    └── .qrest/                   # 内部状态（project.json / parse_state.json）
+    ├── working/                  # facts.json + issues.json（Agent 工作区）
+    ├── output/metadata.json      # 仅 READY export 后生成
+    └── .qrest/                   # project / parse_state / export_state
 
 ## CLI
 
     qrest-agent init <name> [--parent DIR] [--force]
     qrest-agent parse              # source/ → parsed/，重建 PROJECT_INDEX.md
     qrest-agent index              # 仅重建 PROJECT_INDEX.md
-    qrest-agent validate           # 校验 output/metadata.json
+    qrest-agent status             # INVALID/CONFLICT/NEEDS_INPUT/READY + Output:CURRENT/STALE/MISSING
+    qrest-agent export             # READY 时严格导出（写入 .qrest/export_state.json）
+    qrest-agent validate           # 校验 output/metadata.json（工程内提示 stale）
     qrest-validate output/metadata.json   # 等价独立入口
 
 退出码（validate）：
@@ -149,8 +157,8 @@ AGENTS.md 能力：
     cd examples/demo_project
     openhands
 
-Agent 读取 AGENTS.md、PROJECT.md、parsed/PROJECT_INDEX.md，自行执行
-qrest-agent parse / qrest-validate 并修改 output/metadata.json。
+Agent 读取 AGENTS.md、PROJECT.md、parsed/PROJECT_INDEX.md，整理
+working/facts.json + issues.json，运行 qrest-agent status，READY 后执行 qrest-agent export。
 
 ## V0.11 通用 Coding Agent 验证（初步）
 
@@ -203,3 +211,18 @@ CLI：
 V0.2 第二轮 Agent 结果（facts/issues/status/export/评估）：
 
     validation_results/round2/
+
+## V0.21 — Reliability & Contract Hardening
+
+开发方案：docs/qREST Agent V0.21 Reliability & Contract Hardening 开发方案.md
+
+- P0 Output Freshness：export 后记录 facts/issues/schema/output 的 SHA-256 到
+  .qrest/export_state.json；qrest-agent status 输出 Output: CURRENT/STALE/MISSING，
+  validate 在工程内提示 stale 警告。
+- P0 禁止静默覆盖：缺失 → protocol default（仅允许字段）；已知非法 → INVALID/ExportError。
+- 单位归一化：src/qrest_agent/extraction/units.py；facts 保留原始单位，export 转换。
+- Schema Authority：工程 schema/ 是 status/export/validate 的唯一权威。
+- Extraction 语义 Schema：document→source、derived→derived_from、conflict→candidates>=2；
+  invalid issue type 已从 Agent issue 类型中移除。
+- Final Validator：date-time 实际校验、Units 固定 const ["m", "s"]、StartTime 无协议回退。
+- 版本 0.2.1；Case 06（单位转换）与 Case 07（非法已知事实）作为确定性测试。

@@ -11,6 +11,7 @@ from typing import Sequence
 from qrest_agent import __version__
 from qrest_agent.documents import parse_directory, plan_parse_outputs
 from qrest_agent.extraction.exporter import ExportError, NotReadyError, export_project
+from qrest_agent.extraction.freshness import output_freshness
 from qrest_agent.extraction.status import evaluate_state, render_status
 from qrest_agent.extraction.store import ExtractionStateError, load_state_file
 from qrest_agent.metadata.validator import validate_file
@@ -23,6 +24,11 @@ from qrest_agent.workspace import (
     write_parse_state,
 )
 from qrest_agent.workspace.project import fresh_parse_state
+from qrest_agent.workspace.schemas import (
+    load_project_facts_schema,
+    load_project_issues_schema,
+    load_project_metadata_schema,
+)
 
 PROG = "qrest-agent"
 
@@ -204,8 +210,11 @@ def cmd_status(args: argparse.Namespace) -> int:
         print("Status: INVALID")
         print(f"- {exc}")
         return 0
-    result = evaluate_state(facts_data, issues_data)
-    print(render_status(result), end="")
+    facts_schema = load_project_facts_schema(root)
+    issues_schema = load_project_issues_schema(root)
+    result = evaluate_state(facts_data, issues_data, facts_schema=facts_schema, issues_schema=issues_schema)
+    output_status = output_freshness(root)
+    print(render_status(result, output_status), end="")
     return 0
 
 
@@ -260,6 +269,12 @@ def cmd_validate(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 2
     _print_validation(result, metadata_path, schema_path)
+    if result.valid and root is not None:
+        freshness = output_freshness(root)
+        if freshness in ("STALE", "MISSING"):
+            print("WARNING")
+            print("output/metadata.json is valid but not CURRENT relative to",
+                  "working/ + schema/. Run qrest-agent export again to refresh it.")
     return 0 if result.valid else 1
 
 
