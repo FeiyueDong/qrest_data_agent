@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qrest.local/schema/extraction_facts.1.0.0.schema.json",
+  "title": "qREST Extraction Facts State",
+  "description": "Faithful, information-oriented record of extracted engineering facts. Not constrained by the strict qREST_DATA metadata contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "facts"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "value",
+          "provenance"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)*$"
+          },
+          "value": {
+            "description": "Any faithful extracted value (string/number/bool/array/object)."
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "provenance": {
+            "enum": [
+              "user",
+              "document",
+              "derived",
+              "default"
+            ]
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "file"
+            ],
+            "properties": {
+              "file": {
+                "type": "string",
+                "minLength": 1
+              },
+              "location": {
+                "type": "object"
+              }
+            }
+          },
+          "derived_from": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

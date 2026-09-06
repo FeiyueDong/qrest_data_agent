@@ -39,6 +39,18 @@ class Project:
         return self.root / "output" / "metadata.json"
 
     @property
+    def working_dir(self) -> Path:
+        return self.root / "working"
+
+    @property
+    def facts_path(self) -> Path:
+        return self.root / "working" / "facts.json"
+
+    @property
+    def issues_path(self) -> Path:
+        return self.root / "working" / "issues.json"
+
+    @property
     def schema_path(self) -> Path:
         return self.root / "schema" / "metadata.schema.json"
 
@@ -108,6 +120,8 @@ def init_project(name: str, parent: Path | str = ".", force: bool = False) -> Pa
     schema_dir = root / "schema"
     schema_dir.mkdir(parents=True, exist_ok=True)
     _write_if_missing(schema_dir / "metadata.schema.json", _asset_text("metadata.schema.json"))
+    _write_if_missing(schema_dir / "extraction_facts.schema.json", _asset_text("extraction_facts.schema.json"))
+    _write_if_missing(schema_dir / "extraction_issues.schema.json", _asset_text("extraction_issues.schema.json"))
 
     (root / "source").mkdir(parents=True, exist_ok=True)
     (root / "parsed").mkdir(parents=True, exist_ok=True)
@@ -133,13 +147,17 @@ def init_project(name: str, parent: Path | str = ".", force: bool = False) -> Pa
         json.dumps({"schema": STATE_SCHEMA, "updated_at": None, "entries": {}}, indent=2)
         + "\n",
     )
-    metadata_template = json.loads(_asset_text("metadata.template.json"))
+    working_dir = root / "working"
+    working_dir.mkdir(parents=True, exist_ok=True)
     _write_if_missing(
-        root / "output" / "metadata.json",
-        json.dumps(metadata_template, ensure_ascii=False, indent=2) + "\n",
+        working_dir / "facts.json",
+        json.dumps({"version": 1, "facts": []}, indent=2) + "\n",
+    )
+    _write_if_missing(
+        working_dir / "issues.json",
+        json.dumps({"version": 1, "issues": []}, indent=2) + "\n",
     )
     return root
-
 
 def _write_if_missing(path: Path, content: str) -> None:
     if not path.exists():

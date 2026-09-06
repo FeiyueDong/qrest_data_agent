@@ -120,3 +120,39 @@ def test_cli_validate_standalone_file(tmp_path: Path, run_cli) -> None:
     assert result.returncode == 1
     assert "/InstrumentInfo/ChannelNum" in result.stdout
     assert "len(Channels) = 1" in result.stdout
+
+def test_cli_status_and_export_flow(run_cli, tmp_path: Path) -> None:
+    """V0.2 flow: facts/issues -> status NEEDS_INPUT -> READY -> export -> validate."""
+    from tests.extraction.helpers import complete_facts
+
+    result = run_cli(["init", "V2Project"])
+    assert result.returncode == 0, result.stderr
+    project = tmp_path / "V2Project"
+    assert not (project / "output" / "metadata.json").exists()
+
+    (project / "working" / "facts.json").write_text(
+        json.dumps({"version": 1, "facts": []}),
+        encoding="utf-8",
+    )
+    (project / "working" / "issues.json").write_text(
+        json.dumps({"version": 1, "issues": []}),
+        encoding="utf-8",
+    )
+    status = run_cli(["status"], cwd=project)
+    assert "Status: NEEDS_INPUT" in status.stdout
+    not_ready = run_cli(["export"], cwd=project)
+    assert not_ready.returncode == 1
+    assert not (project / "output" / "metadata.json").exists()
+
+    (project / "working" / "facts.json").write_text(
+        json.dumps({"version": 1, "facts": complete_facts(3)}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    status_ready = run_cli(["status"], cwd=project)
+    assert "Status: READY" in status_ready.stdout
+    exported = run_cli(["export"], cwd=project)
+    assert exported.returncode == 0, exported.stderr
+    assert (project / "output" / "metadata.json").is_file()
+    validated = run_cli(["validate"], cwd=project)
+    assert validated.returncode == 0
+    assert "Validation passed." in validated.stdout

@@ -1,0 +1,28 @@
+qREST Extraction Status
+
+Status: NEEDS_INPUT
+
+Known facts:
+- building.project_name = 'Kunming_SSJY'
+- building.structural_type = 'SteelFrame'
+- building.footprint.shape = 'Rectangular'
+- building.footprint.length = 42.0
+- building.footprint.width = 25.2
+- monitoring.provider = 'SSJY'
+- monitoring.channel_count = 18
+- data.event_name = '2025_MYANMAR_7.9'
+- data.start_time = '2025-03-28T14:20:00.000+08:00'
+- data.npts = 30000
+- data.dt = 0.02
+
+Blocking issues:
+- building.elevations (missing)
+  User only gives six height positions (B1F,1F,3F,6F,9F,13F); no numeric elevations are stated.
+- monitoring.channels (missing)
+  Channel count is 18 but no per-channel definitions (LocationXYZ/Azimuth) are available.
+- building.elevations (missing)
+  Required for BuildingInfo.Elevation; elevation values are unavailable.
+- monitoring.channels (missing)
+  Channel definitions are required for strict qREST_DATA export.
+
+Final qREST_DATA cannot be exported.

@@ -1,4 +1,4 @@
 冲突记录
-- Stories/Height: report.pdf=14层/47.4m；note.txt=15层/48.0m。以基准 data/kunming 的
+- 冲突以报告形式记录；在得到权威资料前不得在元数据中二选一。
   14层/47.4m 为准，需向用户说明。
 - Channels: report.pdf/基准=18；note.txt=20。以18为准，需向用户说明。

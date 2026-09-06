@@ -1,1 +1,1 @@
-Case 02: TXT 描述 + data/kunming 基准；必须通过 Schema 与一致性校验。
+Case 02: TXT 描述；验证 parse -> read -> metadata 链路。

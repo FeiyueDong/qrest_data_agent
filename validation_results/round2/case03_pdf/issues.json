@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "issues": [
+    {
+      "type": "missing",
+      "key": "building.elevations",
+      "severity": "blocking",
+      "message": "PDF gives storey heights but no explicit monitoring-level elevation values."
+    },
+    {
+      "type": "missing",
+      "key": "monitoring.channels",
+      "severity": "blocking",
+      "message": "PDF says 18 sensors over 6 floors but contains no per-channel rows."
+    }
+  ]
+}

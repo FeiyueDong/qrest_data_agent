@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "facts": [
+    {
+      "key": "building.project_name",
+      "value": "Kunming_SSJY",
+      "provenance": "user"
+    },
+    {
+      "key": "building.structural_type",
+      "value": "SteelFrame",
+      "provenance": "user"
+    },
+    {
+      "key": "building.footprint.shape",
+      "value": "Rectangular",
+      "provenance": "user"
+    },
+    {
+      "key": "building.footprint.length",
+      "value": 42.0,
+      "provenance": "user"
+    },
+    {
+      "key": "building.footprint.width",
+      "value": 25.2,
+      "provenance": "user"
+    },
+    {
+      "key": "monitoring.provider",
+      "value": "SSJY",
+      "provenance": "user"
+    },
+    {
+      "key": "monitoring.channel_count",
+      "value": 18,
+      "provenance": "user"
+    },
+    {
+      "key": "data.event_name",
+      "value": "2025_MYANMAR_7.9",
+      "provenance": "user"
+    },
+    {
+      "key": "data.start_time",
+      "value": "2025-03-28T14:20:00.000+08:00",
+      "provenance": "user"
+    },
+    {
+      "key": "data.npts",
+      "value": 30000,
+      "provenance": "user"
+    },
+    {
+      "key": "data.dt",
+      "value": 0.02,
+      "provenance": "user"
+    }
+  ]
+}

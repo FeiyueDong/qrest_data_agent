@@ -8,4 +8,7 @@ Name: {{PROJECT_NAME}}
 
 ## Goal
 
-建立符合 qREST_DATA 格式的工程元数据：output/metadata.json
+1. 忠实整理 working/facts.json 与 working/issues.json；
+2. 运行 qrest-agent status；
+3. 仅当 Status=READY 时运行 qrest-agent export，
+   生成 output/metadata.json 并通过严格 Validator。

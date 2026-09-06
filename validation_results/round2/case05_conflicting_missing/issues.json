@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "issues": [
+    {
+      "type": "conflict",
+      "key": "monitoring.channel_count",
+      "severity": "blocking",
+      "message": "report.pdf says 18 channels, note.txt says 20; no authority given, do not pick one.",
+      "candidates": [
+        {
+          "value": 18,
+          "source": {
+            "file": "report.pdf"
+          }
+        },
+        {
+          "value": 20,
+          "source": {
+            "file": "note.txt"
+          }
+        }
+      ]
+    }
+  ]
+}

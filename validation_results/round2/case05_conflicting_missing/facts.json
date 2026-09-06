@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "facts": [
+    {
+      "key": "building.project_name",
+      "value": "Kunming_SSJY",
+      "provenance": "user"
+    },
+    {
+      "key": "building.structural_type",
+      "value": "SteelFrame",
+      "provenance": "document",
+      "source": {
+        "file": "report.pdf"
+      }
+    },
+    {
+      "key": "building.footprint.shape",
+      "value": "Rectangular",
+      "provenance": "document",
+      "source": {
+        "file": "report.pdf"
+      }
+    },
+    {
+      "key": "building.footprint.length",
+      "value": 42.0,
+      "provenance": "document",
+      "source": {
+        "file": "report.pdf"
+      },
+      "unit": "m"
+    },
+    {
+      "key": "building.footprint.width",
+      "value": 25.2,
+      "provenance": "document",
+      "source": {
+        "file": "report.pdf"
+      },
+      "unit": "m"
+    },
+    {
+      "key": "building.story_count",
+      "value": 14,
+      "provenance": "document",
+      "source": {
+        "file": "report.pdf"
+      }
+    },
+    {
+      "key": "building.story_count",
+      "value": 15,
+      "provenance": "document",
+      "source": {
+        "file": "note.txt"
+      }
+    },
+    {
+      "key": "building.height",
+      "value": 47.4,
+      "provenance": "document",
+      "source": {
+        "file": "report.pdf"
+      },
+      "unit": "m"
+    },
+    {
+      "key": "building.height",
+      "value": 48.0,
+      "provenance": "document",
+      "source": {
+        "file": "note.txt"
+      },
+      "unit": "m"
+    },
+    {
+      "key": "building.site_class",
+      "value": "III",
+      "provenance": "document",
+      "source": {
+        "file": "report.pdf"
+      }
+    },
+    {
+      "key": "building.site_class",
+      "value": "II",
+      "provenance": "document",
+      "source": {
+        "file": "note.txt"
+      }
+    },
+    {
+      "key": "monitoring.channel_count",
+      "value": 18,
+      "provenance": "document",
+      "source": {
+        "file": "report.pdf"
+      }
+    },
+    {
+      "key": "monitoring.channel_count",
+      "value": 20,
+      "provenance": "document",
+      "source": {
+        "file": "note.txt"
+      }
+    },
+    {
+      "key": "data.event_name",
+      "value": "2025_MYANMAR_7.9",
+      "provenance": "document",
+      "source": {
+        "file": "report.pdf"
+      }
+    },
+    {
+      "key": "data.start_time",
+      "value": "2025-03-28T14:20:00.000+08:00",
+      "provenance": "document",
+      "source": {
+        "file": "report.pdf"
+      }
+    },
+    {
+      "key": "data.npts",
+      "value": 30000,
+      "provenance": "document",
+      "source": {
+        "file": "report.pdf"
+      }
+    },
+    {
+      "key": "data.dt",
+      "value": 0.02,
+      "provenance": "document",
+      "source": {
+        "file": "report.pdf"
+      },
+      "unit": "s"
+    }
+  ]
+}

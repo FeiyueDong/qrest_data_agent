@@ -1,0 +1,19 @@
+qREST Extraction Status
+
+Status: READY
+
+Known facts:
+- building.project_name = 'Kunming_SSJY'
+- building.structural_type = 'SteelFrame'
+- building.footprint.shape = 'Rectangular'
+- building.footprint.length = 42.0
+- building.footprint.width = 25.2
+- building.elevations = array[16]
+- monitoring.channel_count = 18
+- monitoring.channels = array[18]
+- data.event_name = '2025_MYANMAR_7.9'
+- data.start_time = '2025-03-28T14:20:00.000+08:00'
+- data.npts = 30000
+- data.dt = 0.02
+
+All required information for qREST_DATA export is available.

@@ -10,6 +10,9 @@ from typing import Sequence
 
 from qrest_agent import __version__
 from qrest_agent.documents import parse_directory, plan_parse_outputs
+from qrest_agent.extraction.exporter import ExportError, NotReadyError, export_project
+from qrest_agent.extraction.status import evaluate_state, render_status
+from qrest_agent.extraction.store import ExtractionStateError, load_state_file
 from qrest_agent.metadata.validator import validate_file
 from qrest_agent.workspace import (
     ProjectError,
@@ -93,14 +96,16 @@ def cmd_init(args: argparse.Namespace) -> int:
         return 2
     print(f"Created qREST project: {root}")
     print("")
-    for name in ("AGENTS.md", "PROJECT.md", "schema/metadata.schema.json",
-                 "source/", "parsed/", "output/metadata.json", ".qrest/"):
+    for name in ("AGENTS.md", "PROJECT.md", "schema/", "source/", "parsed/",
+                 "working/facts.json", "working/issues.json", "output/", ".qrest/"):
         print(f"  {name}")
     print("")
     print("Next: cd into the project, put engineering files into source/, then run:")
     print("  qrest-agent parse")
-    return 0
+    print("  qrest-agent status   # after Agent writes working/facts.json + issues.json")
+    print("  qrest-agent export   # only when Status = READY")
 
+    return 0
 
 def cmd_parse(args: argparse.Namespace) -> int:
     try:
@@ -185,6 +190,45 @@ def cmd_index(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_status(args: argparse.Namespace) -> int:
+    try:
+        root = find_project_root(args.project or Path.cwd())
+        facts_data = load_state_file(root / "working" / "facts.json")
+        issues_data = load_state_file(root / "working" / "issues.json")
+    except ProjectError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
+    except ExtractionStateError as exc:
+        print("qREST Extraction Status")
+        print("")
+        print("Status: INVALID")
+        print(f"- {exc}")
+        return 0
+    result = evaluate_state(facts_data, issues_data)
+    print(render_status(result), end="")
+    return 0
+
+
+def cmd_export(args: argparse.Namespace) -> int:
+    try:
+        root = find_project_root(args.project or Path.cwd())
+        output_path = export_project(root)
+    except ProjectError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
+    except NotReadyError as exc:
+        print(f"Error: project is not ready for qREST_DATA export.", file=sys.stderr)
+        print("")
+        print(render_status(exc.result), end="")
+        return 1
+    except ExportError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
+    print(f"Exported: {output_path}")
+    print("Strict qREST_DATA validation passed before write.")
+    return 0
+
+
 def cmd_validate(args: argparse.Namespace) -> int:
     root: Path | None = None
     try:
@@ -222,7 +266,7 @@ def cmd_validate(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog=PROG,
-        description="qREST Agent V0.1: workspace + document core + metadata validator.",
+        description="qREST Agent: workspace + document core + extraction state + strict validator.",
     )
     parser.add_argument("--version", action="version", version=f"qrest-agent {__version__}")
     sub = parser.add_subparsers(dest="command", required=True, metavar="COMMAND")
@@ -240,6 +284,15 @@ def build_parser() -> argparse.ArgumentParser:
         p = sub.add_parser(name, help=help_text)
         _add_common_parser(p)
         p.set_defaults(func=cmd_index if name == "index" else cmd_parse)
+
+    p_status = sub.add_parser("status", help="evaluate extraction state readiness (INVALID/CONFLICT/NEEDS_INPUT/READY)")
+    _add_common_parser(p_status)
+    p_status.set_defaults(func=cmd_status)
+
+    p_export = sub.add_parser("export", help="export strict qREST_DATA when state is READY")
+    _add_common_parser(p_export)
+    p_export.set_defaults(func=cmd_export)
+
 
     p_validate = sub.add_parser("validate", help="validate output/metadata.json")
     _add_common_parser(p_validate)

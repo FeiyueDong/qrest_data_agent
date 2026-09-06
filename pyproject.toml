@@ -27,6 +27,7 @@ packages = [
   "qrest_agent.workspace",
   "qrest_agent.documents",
   "qrest_agent.metadata",
+  "qrest_agent.extraction",
 ]
 
 [tool.setuptools.package-data]

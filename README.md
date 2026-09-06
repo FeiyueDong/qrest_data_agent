@@ -174,3 +174,32 @@ qrest-agent parse / qrest-validate 并修改 output/metadata.json。
     validation_results/
     ├── README.md
     └── case*/{metadata.json, evaluation.md}
+
+## V0.2 — Extraction State 与严格 Metadata 导出
+
+开发方案：docs/qREST Agent V0.2 Extraction State 与严格 Metadata 导出开发方案.md
+
+V0.2 引入中间信息层，解决“资料不完整但 qREST_DATA 严格完整”的矛盾：
+
+    source/ -> parsed/ -> Agent -> working/facts.json + issues.json
+    -> qrest-agent status -> READY -> qrest-agent export -> output/metadata.json
+
+新增：
+
+- schema/extraction_facts.schema.json、schema/extraction_issues.schema.json
+- 工程目录 working/facts.json、working/issues.json（init 时为空）
+- output/metadata.json 不再作为工作草稿；只有 export 成功后存在
+- 确定性 Readiness：INVALID / CONFLICT / NEEDS_INPUT / READY
+
+CLI：
+
+    qrest-agent status     # 读取 working/ 并输出 Readiness
+    qrest-agent export     # 仅 READY 允许；导出前/后均做严格校验
+
+测试：
+
+    tests/extraction/      # facts/issues schema、status、export、partial/conflict 回归
+
+V0.2 第二轮 Agent 结果（facts/issues/status/export/评估）：
+
+    validation_results/round2/

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "issues": [
+    {
+      "type": "missing",
+      "key": "monitoring.channels",
+      "severity": "blocking",
+      "message": "Channel count is 18, but the TXT gives no per-channel definitions (LocationXYZ/Azimuth)."
+    }
+  ]
+}

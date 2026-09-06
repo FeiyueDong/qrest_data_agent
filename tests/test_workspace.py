@@ -1,4 +1,4 @@
-"""Workspace init / discovery tests."""
+"""Workspace init / discovery tests (V0.2 layout)."""
 
 from __future__ import annotations
 
@@ -23,9 +23,13 @@ def test_init_creates_full_skeleton(tmp_path: Path) -> None:
         "AGENTS.md",
         "PROJECT.md",
         "schema/metadata.schema.json",
+        "schema/extraction_facts.schema.json",
+        "schema/extraction_issues.schema.json",
         "source",
         "parsed",
-        "output/metadata.json",
+        "working/facts.json",
+        "working/issues.json",
+        "output",
         ".qrest/project.json",
         ".qrest/parse_state.json",
     ):
@@ -36,10 +40,13 @@ def test_init_creates_full_skeleton(tmp_path: Path) -> None:
     assert info["qrest_version"] == __version__
     assert info["metadata_schema_version"] == SCHEMA_VERSION
 
-    metadata = json.loads((root / "output" / "metadata.json").read_text(encoding="utf-8"))
-    assert metadata["Header"] == "qREST_DATA"
-    assert metadata["Version"] == [1, 0, 0]
-    assert metadata["Units"] == ["m", "s"]
+    # V0.2: output/metadata.json is not a scratch file; it only appears after export.
+    assert not (root / "output" / "metadata.json").exists()
+
+    facts = json.loads((root / "working" / "facts.json").read_text(encoding="utf-8"))
+    issues = json.loads((root / "working" / "issues.json").read_text(encoding="utf-8"))
+    assert facts == {"version": 1, "facts": []}
+    assert issues == {"version": 1, "issues": []}
     assert (root / "PROJECT.md").read_text(encoding="utf-8").startswith("# Project")
     assert "Kunming" in (root / "PROJECT.md").read_text(encoding="utf-8")
 
@@ -48,11 +55,15 @@ def test_agents_md_and_schema_are_copyable(tmp_path: Path) -> None:
     root = init_project("Demo", tmp_path)
     agents = (root / "AGENTS.md").read_text(encoding="utf-8")
     assert "qREST Metadata Agent" in agents
-    assert "qREST_DATA" in agents
-    assert "qrest-agent parse" in agents
+    assert "working/facts.json" in agents
+    assert "qrest-agent export" in agents
     schema = json.loads((root / "schema" / "metadata.schema.json").read_text(encoding="utf-8"))
     assert schema["required"] == ["Header", "Version", "Units", "BuildingInfo", "InstrumentInfo", "DataInfo"]
     assert schema["properties"]["Header"]["const"] == "qREST_DATA"
+    facts_schema = json.loads(
+        (root / "schema" / "extraction_facts.schema.json").read_text(encoding="utf-8")
+    )
+    assert facts_schema["required"] == ["version", "facts"]
 
 
 def test_find_project_root_walks_upward(tmp_path: Path) -> None:
@@ -86,4 +97,7 @@ def test_package_assets_match_repo_canonical_files(tmp_path: Path) -> None:
     ).read_text(encoding="utf-8")
     assert (assets_dir / "PROJECT_TEMPLATE.md").read_text(encoding="utf-8") == (
         repo / "agent" / "PROJECT_TEMPLATE.md"
+    ).read_text(encoding="utf-8")
+    assert (assets_dir / "extraction_facts.schema.json").read_text(encoding="utf-8") == (
+        repo / "schema" / "extraction_facts.schema.json"
     ).read_text(encoding="utf-8")

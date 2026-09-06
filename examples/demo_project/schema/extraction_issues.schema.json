@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qrest.local/schema/extraction_issues.1.0.0.schema.json",
+  "title": "qREST Extraction Issues State",
+  "description": "Issues that cannot be reduced to one reliable fact: missing, partial, conflict, uncertain, invalid.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "issues"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "key",
+          "severity"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "missing",
+              "partial",
+              "conflict",
+              "uncertain",
+              "invalid"
+            ]
+          },
+          "key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "enum": [
+              "blocking",
+              "warning",
+              "info"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "value"
+              ],
+              "properties": {
+                "value": {},
+                "source": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "file"
+                  ],
+                  "properties": {
+                    "file": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "file"
+            ],
+            "properties": {
+              "file": {
+                "type": "string",
+                "minLength": 1
+              },
+              "location": {
+                "type": "object"
+              }
+            }
+          },
+          "related_facts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

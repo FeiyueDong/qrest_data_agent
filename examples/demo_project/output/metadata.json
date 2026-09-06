@@ -20,7 +20,7 @@
     "StructuralFootprint": {
       "Shape": "Rectangular",
       "Parameters": {
-        "Length": 42,
+        "Length": 42.0,
         "Width": 25.2
       },
       "BoundingBox": {
@@ -59,7 +59,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 90.0,
         "LocationXYZ": [
           -20.6,
@@ -72,7 +72,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 90.0,
         "LocationXYZ": [
           20.6,
@@ -85,7 +85,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 0.0,
         "LocationXYZ": [
           0.0,
@@ -98,7 +98,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 90.0,
         "LocationXYZ": [
           -20.6,
@@ -111,7 +111,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 90.0,
         "LocationXYZ": [
           20.6,
@@ -124,7 +124,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 0.0,
         "LocationXYZ": [
           0.0,
@@ -137,7 +137,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 90.0,
         "LocationXYZ": [
           -20.6,
@@ -150,7 +150,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 90.0,
         "LocationXYZ": [
           20.6,
@@ -163,7 +163,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 0.0,
         "LocationXYZ": [
           0.0,
@@ -176,7 +176,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 90.0,
         "LocationXYZ": [
           -20.6,
@@ -189,7 +189,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 90.0,
         "LocationXYZ": [
           20.6,
@@ -202,7 +202,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 0.0,
         "LocationXYZ": [
           0.0,
@@ -215,7 +215,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 90.0,
         "LocationXYZ": [
           -20.6,
@@ -228,7 +228,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 90.0,
         "LocationXYZ": [
           20.6,
@@ -241,7 +241,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 0.0,
         "LocationXYZ": [
           0.0,
@@ -254,7 +254,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 90.0,
         "LocationXYZ": [
           -20.6,
@@ -267,7 +267,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 90.0,
         "LocationXYZ": [
           20.6,
@@ -280,7 +280,7 @@
         "ChannelID": "UNKNOWN",
         "DeviceType": "S05",
         "Measurand": "Acceleration",
-        "Scale": 1,
+        "Scale": 1.0,
         "Azimuth": 0.0,
         "LocationXYZ": [
           0.0,

@@ -44,6 +44,58 @@ def parse(project: pathlib.Path) -> None:
     subprocess.run([AGENT, "parse"], cwd=project, check=True, capture_output=True, text=True)
 
 
+def export_project(project: pathlib.Path) -> None:
+    subprocess.run([AGENT, "export"], cwd=project, check=True, capture_output=True, text=True)
+
+
+def populate_demo_state(project: pathlib.Path, meta: dict) -> None:
+    """Turn the authoritative Kunming sample into working/facts.json (READY)."""
+    bi = meta["BuildingInfo"]
+    ii = meta["InstrumentInfo"]
+    di = meta["DataInfo"]
+    fp = bi["StructuralFootprint"]["Parameters"]
+    bb = bi["StructuralFootprint"]["BoundingBox"]
+    facts = [
+        {"key": "building.project_name", "value": bi["ProjectName"], "provenance": "user"},
+        {"key": "building.geo_location", "value": bi["GeoLocation"], "provenance": "document",
+         "source": {"file": "data/kunming/metadata.json"}},
+        {"key": "building.structural_type", "value": bi["StructuralType"], "provenance": "document",
+         "source": {"file": "report.pdf"}},
+        {"key": "building.footprint.shape", "value": bi["StructuralFootprint"]["Shape"],
+         "provenance": "document", "source": {"file": "report.pdf"}},
+        {"key": "building.footprint.length", "value": fp.get("Length"), "unit": "m",
+         "provenance": "document", "source": {"file": "report.pdf"}},
+        {"key": "building.footprint.width", "value": fp.get("Width"), "unit": "m",
+         "provenance": "document", "source": {"file": "report.pdf"}},
+        {"key": "building.bounding_box", "value": bb, "unit": "m",
+         "provenance": "document", "source": {"file": "data/kunming/metadata.json"}},
+        {"key": "building.elevations", "value": bi["Elevation"], "unit": "m",
+         "provenance": "document", "source": {"file": "data/kunming/metadata.json"}},
+        {"key": "monitoring.provider", "value": ii["Provider"], "provenance": "document",
+         "source": {"file": "data/kunming/metadata.json"}},
+        {"key": "monitoring.channel_count", "value": ii["ChannelNum"], "provenance": "document",
+         "source": {"file": "monitoring.xlsx"}},
+        {"key": "monitoring.channels", "value": ii["Channels"], "provenance": "document",
+         "source": {"file": "monitoring.xlsx", "location": {"sheet": "Channels"}}},
+        {"key": "data.event_name", "value": di["EventName"], "provenance": "document",
+         "source": {"file": "report.pdf"}},
+        {"key": "data.start_time", "value": di["StartTime"], "provenance": "document",
+         "source": {"file": "report.pdf"}},
+        {"key": "data.npts", "value": di["NPTS"], "provenance": "document",
+         "source": {"file": "report.pdf"}},
+        {"key": "data.dt", "value": di["DT"], "unit": "s", "provenance": "document",
+         "source": {"file": "report.pdf"}},
+        {"key": "data.corrected", "value": di["Corrected"], "provenance": "default"},
+    ]
+    (project / "working" / "facts.json").write_text(
+        json.dumps({"version": 1, "facts": facts}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    (project / "working" / "issues.json").write_text(
+        json.dumps({"version": 1, "issues": []}), encoding="utf-8",
+    )
+
+
 def main() -> None:
     demo = ROOT / "examples" / "demo_project"
     cases = ROOT / "examples" / "benchmark_cases"
@@ -77,8 +129,10 @@ Name: Kunming_SSJY（昆明隔震建筑 qREST 示例工程）
 """,
     )
     copy_expected(p, km)
-    write(p / "output" / "metadata.json", json.dumps(km, ensure_ascii=False, indent=2))
+
+    populate_demo_state(p, km)
     parse(p)
+    export_project(p)
 
     # ---- Case 01: natural language ----
     p = init("case01_natural_language", cases)
@@ -140,7 +194,7 @@ Event: 2025_MYANMAR_7.9  Start: 2025-03-28T14:20:00.000+08:00  NPTS: 30000  DT: 
     parse(p)
     write(
         p / "CHECKLIST.md",
-Case 02: TXT 描述；验证 parse -> read -> metadata 链路。
+        """Case 02: TXT 描述；验证 parse -> read -> metadata 链路。
 """,
     )
 
@@ -168,7 +222,7 @@ PDF 未给出精确坐标/通道明细时，不得编造 LocationXYZ 或 Channel
     parse(p)
     write(
         p / "CHECKLIST.md",
-Case 03: PDF 全文提取；记录文档缺失的通道/标高明细。
+        """Case 03: PDF 全文提取；记录文档缺失的通道/标高明细。
 """,
     )
 

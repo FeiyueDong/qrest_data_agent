@@ -23,3 +23,12 @@
 
 Agent 测试用的真实工程文档原件（PDF + DOCX），demo 与 case03/case04/case05
 均从该目录复制 source。
+
+## V0.2 demo
+
+examples/demo_project 现在是 V0.2 布局：
+
+- working/facts.json：完整 Kunming 事实（16 个标高、18 个通道，带 source）
+- working/issues.json：空
+- qrest-agent status → READY
+- qrest-agent export → output/metadata.json（0 ERROR / 0 WARNING）

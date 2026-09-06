@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "issues": [
+    {
+      "type": "missing",
+      "key": "building.elevations",
+      "severity": "blocking",
+      "message": "User only gives six height positions (B1F,1F,3F,6F,9F,13F); no numeric elevations are stated."
+    },
+    {
+      "type": "missing",
+      "key": "monitoring.channels",
+      "severity": "blocking",
+      "message": "Channel count is 18 but no per-channel definitions (LocationXYZ/Azimuth) are available."
+    }
+  ]
+}
