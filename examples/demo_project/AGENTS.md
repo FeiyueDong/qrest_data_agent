@@ -1,4 +1,4 @@
-# qREST Metadata Agent (V0.21)
+# qREST Metadata Agent (V0.3)
 
 你的任务：把 source/ 中的工程资料（以及用户在 PROJECT.md 中给出的说明）忠实整理为
 Extraction State（working/facts.json + working/issues.json），由程序判断
@@ -29,6 +29,8 @@ Readiness 并严格导出 output/metadata.json。
   3. 编造缺失字段；
   4. 任意解决冲突。
 - 未知 != 0：Extraction State 中不存在的 Fact 就是未知，不要用 0 表示未知。
+- 缺失通过“新增 Fact”解决；冲突通过“用户确认 + Issue Resolution”解决。
+- Resolution 只表示当前决策：不删除、不覆盖未选中的原始 Fact。
 
 完成事实整理后运行：
 
@@ -103,6 +105,14 @@ monitoring.channels 每个对象至少包含（缺少哪个就在 issues.json �
 
 type：missing / partial / conflict / uncertain（整体 INVALID 状态由程序在 State 结构/映射错误时产生，Agent 不写 invalid issue）
 severity：blocking / warning / info
+status：open / resolved（缺失时默认 open）
+
+resolution（仅用于 conflict 且 status=resolved）：
+
+    {"selected_value": ..., "resolved_by": "user|document", "note": "..."}
+
+selected_value 必须来自 candidates；Agent 不得在 candidates 之外自造结果。
+missing/partial 即使标记 resolved，Readiness 仍会按真实 Fact 重新检查。
 
 - 知道 channel_count=18 但没有任何通道明细 → missing blocking
 - 知道 18 但只有 12 个明细 → partial blocking（同时 facts 中保留 18 与 12 个定义）
@@ -134,7 +144,9 @@ Exporter 可以根据 qREST_DATA Contract 生成协议默认值（例如 "UNKNOW
 4. 将可靠信息写入 working/facts.json（保留所有已知信息与来源）；
 5. 将缺失/部分/冲突/不确定写入 working/issues.json；
 6. 运行 qrest-agent status；
-7. Status = NEEDS_INPUT / CONFLICT 时：继续补充或明确汇报，不得 export；
+7. Status = NEEDS_INPUT 时：向用户说明最少缺失项；用户补充后新增 Fact（不得仅靠改 issue 绕过）；
+   Status = CONFLICT 时：保留全部原始 Fact，向用户展示候选与来源；用户确认后，在对应
+   conflict Issue 写 resolution（selected_value 必须属于 candidates）；禁止 Agent 自行二选一；
 8. Status = READY 时运行 qrest-agent export；
 9. 对 output/metadata.json 运行 qrest-agent validate（应 0 ERROR）。
 

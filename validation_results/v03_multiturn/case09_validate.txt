@@ -1,0 +1,9 @@
+qREST Metadata Validation
+
+File:   /home/yue/CodeFiles/qrest_data_agent/.tmp_v03_runs/case09_conflict_resolve/output/metadata.json
+Schema: /home/yue/CodeFiles/qrest_data_agent/.tmp_v03_runs/case09_conflict_resolve/schema/metadata.schema.json
+
+ERRORS: 0
+WARNINGS: 0
+
+Validation passed.

@@ -58,3 +58,10 @@ def validate_key_syntax(key: object) -> bool:
         return False
     parts = key.split(".")
     return len(parts) >= 2 and all(p and p.replace("_", "").isalnum() for p in parts)
+
+# V0.3: keys that actually influence the final qREST_DATA export.
+EXPORT_RELEVANT_KEYS = frozenset(KNOWN_KEYS) | frozenset(EXPORT_REQUIREMENTS)
+
+
+def is_export_relevant_key(key: object) -> bool:
+    return isinstance(key, str) and key in EXPORT_RELEVANT_KEYS

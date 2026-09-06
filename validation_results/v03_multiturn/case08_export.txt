@@ -1,0 +1,2 @@
+Exported: /home/yue/CodeFiles/qrest_data_agent/.tmp_v03_runs/case08_missing_newfact/output/metadata.json
+Strict qREST_DATA validation passed before write.

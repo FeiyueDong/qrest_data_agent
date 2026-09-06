@@ -1,0 +1,290 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qrest.local/schema/metadata.1.0.0.schema.json",
+  "title": "qREST Data Metadata (format 1.0.0)",
+  "description": "Formal schema of the qREST_DATA JSON object that accompanies a .qrest waveform container. Field importance follows data/metadata.json annotations: must/important fields must be populated from sources; unimportant fields use UNKNOWN/NULL when not available.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "Header",
+    "Version",
+    "Units",
+    "BuildingInfo",
+    "InstrumentInfo",
+    "DataInfo"
+  ],
+  "properties": {
+    "Header": {
+      "const": "qREST_DATA"
+    },
+    "Version": {
+      "description": "qREST data format version [major, minor, patch].",
+      "type": "array",
+      "prefixItems": [
+        {
+          "const": 1
+        },
+        {
+          "const": 0
+        },
+        {
+          "const": 0
+        }
+      ],
+      "items": false,
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "Units": {
+      "description": "qREST_DATA fixed canonical units.",
+      "const": [
+        "m",
+        "s"
+      ]
+    },
+    "BuildingInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ProjectName",
+        "GeoLocation",
+        "StructuralType",
+        "StructuralFootprint",
+        "ElevationNum",
+        "Elevation"
+      ],
+      "properties": {
+        "ProjectName": {
+          "type": "string",
+          "description": "不重要; UNKNOWN allowed when absent."
+        },
+        "GeoLocation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "Longitude",
+            "Latitude",
+            "NorthAngle"
+          ],
+          "properties": {
+            "Longitude": {
+              "type": "number",
+              "description": "不重要; decimal degrees."
+            },
+            "Latitude": {
+              "type": "number",
+              "description": "不重要; decimal degrees."
+            },
+            "NorthAngle": {
+              "type": "number",
+              "description": "North azimuth of building X axis (degrees)."
+            }
+          }
+        },
+        "StructuralType": {
+          "type": "string",
+          "description": "不重要; e.g. SteelFrame, FrameShearWall, UNKNOWN."
+        },
+        "StructuralFootprint": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "Shape",
+            "Parameters",
+            "BoundingBox"
+          ],
+          "properties": {
+            "Shape": {
+              "enum": [
+                "Rectangular",
+                "Polygon",
+                "Circular"
+              ]
+            },
+            "Parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "Length": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "Width": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "Corners": {
+                  "type": "array",
+                  "minItems": 3,
+                  "items": {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "items": false,
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "Radius": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            },
+            "BoundingBox": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "MaxX",
+                "MinX",
+                "MaxY",
+                "MinY"
+              ],
+              "properties": {
+                "MaxX": {
+                  "type": "number"
+                },
+                "MinX": {
+                  "type": "number"
+                },
+                "MaxY": {
+                  "type": "number"
+                },
+                "MinY": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "ElevationNum": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "必须; equals len(Elevation)."
+        },
+        "Elevation": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "number"
+          },
+          "description": "必须; elevation of each measurement level (m)."
+        }
+      }
+    },
+    "InstrumentInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Provider",
+        "ChannelNum",
+        "Channels"
+      ],
+      "properties": {
+        "Provider": {
+          "type": "string",
+          "description": "不重要; UNKNOWN allowed."
+        },
+        "ChannelNum": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "必须; equals len(Channels)."
+        },
+        "Channels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "ChannelNo",
+              "ChannelID",
+              "DeviceType",
+              "Measurand",
+              "Scale",
+              "Azimuth",
+              "LocationXYZ"
+            ],
+            "properties": {
+              "ChannelNo": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "必须; 1-based, unique."
+              },
+              "ChannelID": {
+                "type": "string",
+                "description": "不重要; UNKNOWN allowed."
+              },
+              "DeviceType": {
+                "type": "string",
+                "description": "不重要; e.g. S05, VOLCAS."
+              },
+              "Measurand": {
+                "type": "string",
+                "description": "重要; e.g. Acceleration."
+              },
+              "Scale": {
+                "type": "number",
+                "description": "重要; engineering unit scale."
+              },
+              "Azimuth": {
+                "type": "number",
+                "description": "必须; direction azimuth (degrees)."
+              },
+              "LocationXYZ": {
+                "type": "array",
+                "description": "必须; local x/y/z in meters.",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "DataInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "EventName",
+        "StartTime",
+        "NPTS",
+        "DT",
+        "Corrected"
+      ],
+      "properties": {
+        "EventName": {
+          "type": "string",
+          "description": "不重要; event label, UNKNOWN allowed."
+        },
+        "StartTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Required real RFC3339 timestamp with timezone; no UNKNOWN/0 default."
+        },
+        "NPTS": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "必须; number of samples per channel."
+        },
+        "DT": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "必须; sampling interval (s)."
+        },
+        "Corrected": {
+          "type": "string",
+          "description": "不重要; correction state, e.g. NULL."
+        }
+      }
+    }
+  }
+}

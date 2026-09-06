@@ -1,0 +1,23 @@
+qREST Extraction Status
+
+Status: READY
+
+Output: MISSING
+Known facts:
+- building.project_name = 'Kunming_SSJY'
+- building.structural_type = 'SteelFrame'
+- building.footprint.shape = 'Rectangular'
+- building.footprint.length = 42.0
+- building.footprint.width = 25.2
+- building.bounding_box = object{MaxX, MaxY, MinX, MinY}
+- building.elevations = array[2]
+- monitoring.channel_count = 3
+- monitoring.channels = array[3]
+- data.event_name = 'EVENT'
+- data.start_time = '2025-03-28T14:20:00.000+08:00'
+- data.npts = 30000
+- data.dt = 0.02
+- building.site_class = 'II'
+- building.site_class = 'III'
+
+All required information for qREST_DATA export is available.

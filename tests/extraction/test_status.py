@@ -58,12 +58,12 @@ def test_blocking_conflict_issue_wins_over_complete() -> None:
         _issues(
             {
                 "type": "conflict",
-                "key": "building.story_count",
+                "key": "data.dt",
                 "severity": "blocking",
-                "message": "14 vs 15",
+                "message": "0.01 vs 0.02",
                 "candidates": [
-                    {"value": 14, "source": {"file": "report.pdf"}},
-                    {"value": 15, "source": {"file": "note.txt"}},
+                    {"value": 0.01, "source": {"file": "report_a.pdf"}},
+                    {"value": 0.02, "source": {"file": "report_b.pdf"}},
                 ],
             }
         ),

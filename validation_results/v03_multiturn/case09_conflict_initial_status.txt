@@ -1,0 +1,32 @@
+qREST Extraction Status
+
+Status: CONFLICT
+
+Output: MISSING
+Known facts:
+- building.project_name = 'Kunming_SSJY'
+- building.structural_type = 'SteelFrame'
+- building.footprint.shape = 'Rectangular'
+- building.footprint.length = 42.0
+- building.footprint.width = 25.2
+- building.bounding_box = object{MaxX, MaxY, MinX, MinY}
+- building.elevations = array[2]
+- monitoring.channel_count = 2
+- monitoring.channels = array[2]
+- data.event_name = 'EVENT'
+- data.start_time = '2025-03-28T14:20:00.000+08:00'
+- data.npts = 30000
+- data.dt = 0.02
+- data.dt = 0.01
+
+Blocking issues:
+- data.dt (conflict)
+  0.01 vs 0.02
+  candidate: 0.01 <- report_a.pdf
+  candidate: 0.02 <- report_b.pdf
+- data.dt (conflict)
+  Conflicting facts were recorded for 'data.dt'.
+  candidate: 0.02 <- source.txt
+  candidate: 0.01 <- report_a.pdf
+
+Final qREST_DATA cannot be exported.

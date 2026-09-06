@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "facts_hash": "bc48f9d5d5164d9df7487bcedf1d076f94e0d06efcbb705ed84b5652f2078604",
+  "issues_hash": "2215c0a1d1f92be40b5738428c873ddc417de1c417f4b5244a732dfe210c7b7d",
+  "facts_schema_hash": "ca0f35ec1e118e62c1023bd79581b4472e9f36cf5ed58b480d19d48230501a7e",
+  "issues_schema_hash": "a276a89692267c2e5787afbc3be40a710224efd40ced52adf353231abc9a27f7",
+  "metadata_schema_hash": "318a8c83389bacdb84751b7207d8733f71cc81319cc9aa8015c1fd88599a5e0d",
+  "output_hash": "bf7e928745b80a6d673868a48a94f292d16a21972e77b02eb62d6d1f40988f6c",
+  "exported_at": "2026-09-06T22:31:08+08:00"
+}

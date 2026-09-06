@@ -19,6 +19,7 @@ from qrest_agent.extraction.model import (
     EXPORT_REQUIREMENTS,
     FACTS_SCHEMA_NAME,
     ISSUES_SCHEMA_NAME,
+    is_export_relevant_key,
 )
 
 STATUS_INVALID = "INVALID"
@@ -57,6 +58,7 @@ class ReadinessResult:
     facts: list[dict] = field(default_factory=list)
     messages: list[str] = field(default_factory=list)
     blocking: list[dict] = field(default_factory=list)
+    resolved_issues: list[dict] = field(default_factory=list)
 
     @property
     def ready(self) -> bool:
@@ -262,12 +264,76 @@ def _channel_complete(channel: Any) -> bool:
     return isinstance(xyz, list) and len(xyz) == 3
 
 
-def _fact_conflicts(facts: list[dict]) -> list[dict]:
+def _deep_eq(a: Any, b: Any) -> bool:
+    return json.dumps(a, ensure_ascii=False, sort_keys=True) == json.dumps(b, ensure_ascii=False, sort_keys=True)
+
+
+def _fact_groups(facts: list[dict]) -> dict[str, list[dict]]:
     grouped: dict[str, list[dict]] = {}
     for fact in facts:
         grouped.setdefault(str(fact.get("key")), []).append(fact)
+    return grouped
+
+
+def _validate_resolutions(issues: list[dict], facts: list[dict]) -> tuple[dict, list[str]]:
+    """Return {key: issue} for valid resolved conflicts plus validation messages."""
+    resolved: dict[str, dict] = {}
+    messages: list[str] = []
+    groups = _fact_groups(facts)
+    for issue in issues:
+        if issue.get("type") != "conflict" or issue.get("status") != "resolved":
+            continue
+        key = str(issue.get("key"))
+        resolution = issue.get("resolution")
+        if not isinstance(resolution, dict) or "selected_value" not in resolution:
+            messages.append(f"issues[{key}]: resolved conflict requires a resolution with selected_value")
+            continue
+        selected = resolution.get("selected_value")
+        candidates = issue.get("candidates") or []
+        if not any(isinstance(c, dict) and _deep_eq(c.get("value"), selected) for c in candidates):
+            messages.append(f"issues[{key}]: selected_value {selected!r} is not one of the candidates")
+            continue
+        if is_export_relevant_key(key) and not any(
+            _deep_eq(f.get("value"), selected) for f in groups.get(key, [])
+        ):
+            messages.append(f"issues[{key}]: selected_value {selected!r} does not exist among raw facts")
+            continue
+        resolved[key] = issue
+    return resolved, messages
+
+
+def _effective_facts(facts: list[dict], resolved: dict) -> list[dict]:
+    """In-memory fact view: resolved export keys keep only the selected raw fact."""
+    if not resolved:
+        return list(facts)
+    effective: list[dict] = []
+    for fact in facts:
+        if fact.get("key") in resolved:
+            continue  # re-added below only for the selected value
+        effective.append(fact)
+    for key, issue in resolved.items():
+        selected = issue.get("resolution", {}).get("selected_value")
+        match = next(
+            (f for f in facts if f.get("key") == key and _deep_eq(f.get("value"), selected)),
+            None,
+        )
+        if match is not None:
+            effective.append(dict(match))
+    return effective
+
+
+def _fact_conflicts(facts: list[dict], resolved_keys: set[str] | None = None) -> list[dict]:
+    """Auto-detected conflicts that block export (resolved keys are skipped).
+
+    Conflicts on non-export-relevant keys (e.g. building.site_class) are kept
+    out of the blocking set: they do not influence final qREST_DATA.
+    """
+    resolved_keys = resolved_keys or set()
+    grouped = _fact_groups(facts)
     conflicts: list[dict] = []
     for key in sorted(grouped):
+        if key in resolved_keys or not is_export_relevant_key(key):
+            continue
         unique: dict[str, dict] = {}
         for fact in grouped[key]:
             marker = json.dumps(fact.get("value"), ensure_ascii=False, sort_keys=True)
@@ -286,6 +352,15 @@ def _fact_conflicts(facts: list[dict]) -> list[dict]:
                 }
             )
     return conflicts
+
+
+def _is_open_blocker(issue: dict) -> bool:
+    status = issue.get("status") or "open"
+    if status != "open":
+        return False
+    if issue.get("type") == "conflict" and not is_export_relevant_key(issue.get("key")):
+        return False
+    return issue.get("severity") == "blocking"
 
 
 def evaluate_state(
@@ -314,29 +389,48 @@ def evaluate_state(
     if not messages:
         messages.extend(_semantic_fact_messages(facts))
 
+    resolved_conflicts, resolution_messages = _validate_resolutions(issues, facts)
+    messages.extend(resolution_messages)
     if messages:
         return ReadinessResult(status=STATUS_INVALID, messages=messages)
 
-    blocking: list[dict] = [i for i in issues if i.get("severity") == "blocking"]
-    blocking.extend(_fact_conflicts(facts))
+    resolved_keys = set(resolved_conflicts)
+    effective = _effective_facts(facts, resolved_conflicts)
+    resolved_issue_list = [i for i in issues if (i.get("status") or "open") == "resolved"]
+
+    blocking: list[dict] = [i for i in issues if _is_open_blocker(i)]
+    blocking.extend(_fact_conflicts(facts, resolved_keys))
 
     # Conflict takes precedence over ordinary missing input.
     if any(i.get("type") == "conflict" for i in blocking):
         return ReadinessResult(
             status=STATUS_CONFLICT,
-            facts=facts,
+            facts=effective,
             blocking=_dedupe(blocking),
+            resolved_issues=resolved_issue_list,
             messages=[],
         )
 
-    requirements = _requirement_issues(facts)
+    requirements = _requirement_issues(effective)
     blocking.extend(requirements)
     blocking = _dedupe(blocking)
 
     if blocking:
-        return ReadinessResult(status=STATUS_NEEDS_INPUT, facts=facts, blocking=blocking)
+        return ReadinessResult(
+            status=STATUS_NEEDS_INPUT,
+            facts=effective,
+            blocking=blocking,
+            resolved_issues=resolved_issue_list,
+            messages=[],
+        )
 
-    return ReadinessResult(status=STATUS_READY, facts=facts, blocking=[])
+    return ReadinessResult(
+        status=STATUS_READY,
+        facts=effective,
+        blocking=[],
+        resolved_issues=resolved_issue_list,
+        messages=[],
+    )
 
 
 def _dedupe(issues: list[dict]) -> list[dict]:
@@ -380,4 +474,13 @@ def render_status(result: ReadinessResult, output_status: str | None = None) -> 
     else:
         lines.append("All required information for qREST_DATA export is available.")
 
+    if result.resolved_issues:
+        lines.append("")
+        lines.append("Resolved issues:")
+        for issue in result.resolved_issues:
+            lines.append(f"- {issue.get('key')} ({issue.get('type')})")
+            resolution = issue.get("resolution") or {}
+            if resolution:
+                lines.append(f"  selected: {_summary(resolution.get('selected_value'))}")
+                lines.append(f"  resolved_by: {resolution.get('resolved_by')}")
     return "\n".join(lines) + "\n"

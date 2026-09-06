@@ -1,0 +1,91 @@
+{
+  "Header": "qREST_DATA",
+  "Version": [
+    1,
+    0,
+    0
+  ],
+  "Units": [
+    "m",
+    "s"
+  ],
+  "BuildingInfo": {
+    "ProjectName": "Kunming_SSJY",
+    "GeoLocation": {
+      "Longitude": 0.0,
+      "Latitude": 0.0,
+      "NorthAngle": 0.0
+    },
+    "StructuralType": "SteelFrame",
+    "StructuralFootprint": {
+      "Shape": "Rectangular",
+      "Parameters": {
+        "Length": 42.0,
+        "Width": 25.2
+      },
+      "BoundingBox": {
+        "MaxX": 21.0,
+        "MinX": -21.0,
+        "MaxY": 12.6,
+        "MinY": -12.6
+      }
+    },
+    "ElevationNum": 2,
+    "Elevation": [
+      0.0,
+      4.5
+    ]
+  },
+  "InstrumentInfo": {
+    "Provider": "UNKNOWN",
+    "ChannelNum": 3,
+    "Channels": [
+      {
+        "ChannelNo": 1,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1.0,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          0.0,
+          -4.2,
+          0.0
+        ]
+      },
+      {
+        "ChannelNo": 2,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1.0,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          0.0,
+          -4.2,
+          0.0
+        ]
+      },
+      {
+        "ChannelNo": 3,
+        "ChannelID": "UNKNOWN",
+        "DeviceType": "S05",
+        "Measurand": "Acceleration",
+        "Scale": 1.0,
+        "Azimuth": 90.0,
+        "LocationXYZ": [
+          0.0,
+          -4.2,
+          0.0
+        ]
+      }
+    ]
+  },
+  "DataInfo": {
+    "EventName": "EVENT",
+    "StartTime": "2025-03-28T14:20:00.000+08:00",
+    "NPTS": 30000,
+    "DT": 0.02,
+    "Corrected": "NULL"
+  }
+}

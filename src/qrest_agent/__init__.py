@@ -1,4 +1,4 @@
-"""qREST Agent deterministic core (V0.21/V0.22 closure)."""
+"""qREST Agent deterministic core (V0.3)."""
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 SCHEMA_VERSION = "1.0.0"

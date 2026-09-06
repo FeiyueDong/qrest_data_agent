@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qrest-agent"
-version = "0.2.1"
-description = "qREST Agent V0.21 - workspace, document core, extraction state, strict qREST_DATA export and validation"
+version = "0.3.0"
+description = "qREST Agent V0.3 - workspace, document core, extraction state, strict qREST_DATA export and minimal human resolution"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

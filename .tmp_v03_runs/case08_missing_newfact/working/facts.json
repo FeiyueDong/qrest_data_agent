@@ -1,0 +1,159 @@
+{
+  "version": 1,
+  "facts": [
+    {
+      "key": "building.project_name",
+      "value": "Kunming_SSJY",
+      "provenance": "user"
+    },
+    {
+      "key": "building.structural_type",
+      "value": "SteelFrame",
+      "provenance": "document",
+      "source": {
+        "file": "source.txt"
+      }
+    },
+    {
+      "key": "building.footprint.shape",
+      "value": "Rectangular",
+      "provenance": "document",
+      "source": {
+        "file": "source.txt"
+      }
+    },
+    {
+      "key": "building.footprint.length",
+      "value": 42.0,
+      "unit": "m",
+      "provenance": "document",
+      "source": {
+        "file": "source.txt"
+      }
+    },
+    {
+      "key": "building.footprint.width",
+      "value": 25.2,
+      "unit": "m",
+      "provenance": "document",
+      "source": {
+        "file": "source.txt"
+      }
+    },
+    {
+      "key": "building.bounding_box",
+      "value": {
+        "MaxX": 21.0,
+        "MinX": -21.0,
+        "MaxY": 12.6,
+        "MinY": -12.6
+      },
+      "unit": "m",
+      "provenance": "document",
+      "source": {
+        "file": "source.txt"
+      }
+    },
+    {
+      "key": "building.elevations",
+      "value": [
+        0.0,
+        4.5
+      ],
+      "unit": "m",
+      "provenance": "document",
+      "source": {
+        "file": "source.txt"
+      }
+    },
+    {
+      "key": "data.event_name",
+      "value": "EVENT",
+      "provenance": "document",
+      "source": {
+        "file": "source.txt"
+      }
+    },
+    {
+      "key": "data.start_time",
+      "value": "2025-03-28T14:20:00.000+08:00",
+      "provenance": "document",
+      "source": {
+        "file": "source.txt"
+      }
+    },
+    {
+      "key": "data.npts",
+      "value": 30000,
+      "provenance": "document",
+      "source": {
+        "file": "source.txt"
+      }
+    },
+    {
+      "key": "data.dt",
+      "value": 0.02,
+      "unit": "s",
+      "provenance": "document",
+      "source": {
+        "file": "source.txt"
+      }
+    },
+    {
+      "key": "monitoring.channel_count",
+      "value": 3,
+      "provenance": "document",
+      "source": {
+        "file": "x"
+      }
+    },
+    {
+      "key": "monitoring.channels",
+      "value": [
+        {
+          "ChannelNo": 1,
+          "ChannelID": "UNKNOWN",
+          "DeviceType": "S05",
+          "Measurand": "Acceleration",
+          "Scale": 1,
+          "Azimuth": 90.0,
+          "LocationXYZ": [
+            0.0,
+            -4.2,
+            0.0
+          ]
+        },
+        {
+          "ChannelNo": 2,
+          "ChannelID": "UNKNOWN",
+          "DeviceType": "S05",
+          "Measurand": "Acceleration",
+          "Scale": 1,
+          "Azimuth": 90.0,
+          "LocationXYZ": [
+            0.0,
+            -4.2,
+            0.0
+          ]
+        },
+        {
+          "ChannelNo": 3,
+          "ChannelID": "UNKNOWN",
+          "DeviceType": "S05",
+          "Measurand": "Acceleration",
+          "Scale": 1,
+          "Azimuth": 90.0,
+          "LocationXYZ": [
+            0.0,
+            -4.2,
+            0.0
+          ]
+        }
+      ],
+      "provenance": "document",
+      "source": {
+        "file": "source.txt"
+      }
+    }
+  ]
+}

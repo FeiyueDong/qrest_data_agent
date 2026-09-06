@@ -96,6 +96,32 @@
             "items": {
               "type": "string"
             }
+          },
+          "status": {
+            "enum": [
+              "open",
+              "resolved"
+            ]
+          },
+          "resolution": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "selected_value",
+              "resolved_by"
+            ],
+            "properties": {
+              "selected_value": {},
+              "resolved_by": {
+                "enum": [
+                  "user",
+                  "document"
+                ]
+              },
+              "note": {
+                "type": "string"
+              }
+            }
           }
         },
         "allOf": [
@@ -113,6 +139,27 @@
             "then": {
               "required": [
                 "candidates"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "conflict"
+                },
+                "status": {
+                  "const": "resolved"
+                }
+              },
+              "required": [
+                "type",
+                "status"
+              ]
+            },
+            "then": {
+              "required": [
+                "resolution"
               ]
             }
           }

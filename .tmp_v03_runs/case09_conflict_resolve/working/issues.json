@@ -1,0 +1,1 @@
+{"version": 1, "issues": [{"type": "conflict", "key": "data.dt", "severity": "blocking", "message": "0.01 vs 0.02", "candidates": [{"value": 0.01, "source": {"file": "report_a.pdf"}}, {"value": 0.02, "source": {"file": "report_b.pdf"}}], "status": "resolved", "resolution": {"selected_value": 0.02, "resolved_by": "user", "note": "user confirmed report_b.pdf"}}]}

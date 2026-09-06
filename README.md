@@ -1,4 +1,4 @@
-# qREST Agent V0.21
+# qREST Agent V0.3
 
 面向建筑结构轻量化地震监测工程的 Metadata Agent（V0.1 起连续演进至 V0.21）。
 
@@ -237,3 +237,15 @@ V0.2 第二轮 Agent 结果（facts/issues/status/export/评估）：
 - RFC3339 校验由 status 与最终 Validator 共享
 - 新增 GitHub Actions：.github/workflows/ci.yml
 - 回归记录：validation_results/round4_v022/
+
+## V0.3 — Minimal Human Resolution
+
+开发方案：docs/qREST Agent V0.3 Minimal Human Resolution 开发方案.md
+
+- Issue 增加 status=open/resolved 与 resolution（selected_value/resolved_by/note）
+- resolved conflict 只影响内存 Effective Fact View；原始 Facts 不删除
+- selected_value 必须来自 candidates，否则 INVALID
+- missing 标 resolved 不能绕过真实 Fact requirement
+- 非导出相关 key 的冲突不再阻止 READY
+- 无新增 resolutions.json / qrest-agent resolve 命令
+- 多轮场景 Case08–10 记录于 validation_results/v03_multiturn/
