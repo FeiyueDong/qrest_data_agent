@@ -12,13 +12,17 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from qrest_agent.extraction.status import STATUS_READY, ReadinessResult, evaluate_state
-from qrest_agent.extraction.units import normalize_angle, normalize_length, normalize_time
+from qrest_agent.extraction.status import ReadinessResult, evaluate_state
+from qrest_agent.extraction.units import UnitError, normalize_angle, normalize_length, normalize_time
 from qrest_agent.extraction.freshness import record_export
 from qrest_agent.extraction.store import ExtractionStateError, load_state_file
-from qrest_agent.workspace.schemas import load_project_metadata_schema
-from qrest_agent.metadata.schema import package_schema
+from qrest_agent.workspace.schemas import (
+    load_project_facts_schema,
+    load_project_issues_schema,
+    load_project_metadata_schema,
+)
 from qrest_agent.metadata.validator import validate_dict
+from qrest_agent.metadata.schema import package_schema
 
 
 class ExportError(RuntimeError):
@@ -74,6 +78,14 @@ def _optional_string(value: Any, default: str, label: str) -> str:
     return value
 
 
+def _safe_normalize(operation, label: str) -> Any:
+    """Convert unit failures into ExportError (contract errors, not runtime)."""
+    try:
+        return operation()
+    except UnitError as exc:
+        raise ExportError(f"cannot export: {label}: {exc}") from exc
+
+
 def _fact_unit(facts: list[dict], key: str) -> str | None:
     fact = _fact(facts, key)
     return fact.get("unit") if fact else None
@@ -85,10 +97,13 @@ def _normalized_fact_number(facts: list[dict], key: str, label: str) -> float | 
         return None
     value = _require_number(fact.get("value"), label)
     unit = fact.get("unit")
-    if key == "building.footprint.length" or key == "building.footprint.width" or key == "building.footprint.radius":
-        return normalize_length(value, unit, label)
+    if key in ("building.footprint.length", "building.footprint.width", "building.footprint.radius"):
+        normalized = _safe_normalize(lambda: normalize_length(value, unit, label), label)
+        if normalized < 0:
+            raise ExportError(f"cannot export: {label} must be >= 0")
+        return normalized
     if key == "data.dt":
-        return normalize_time(value, unit, label)
+        return _safe_normalize(lambda: normalize_time(value, unit, label), label)
     return value
 
 
@@ -107,7 +122,7 @@ def _default_geo(facts: list[dict]) -> dict:
         fact = _fact(facts, key)
         if fact is None:
             return 0.0
-        return normalize_angle(_require_number(fact.get("value"), label), fact.get("unit"), label)
+        return _safe_normalize(lambda: normalize_angle(_require_number(fact.get("value"), label), fact.get("unit"), label), label)
     return {
         "Longitude": individual("building.geo.longitude", "geo.longitude"),
         "Latitude": individual("building.geo.latitude", "geo.latitude"),
@@ -125,7 +140,7 @@ def _bbox(facts: list[dict]) -> dict:
         raise ExportError("cannot export: building.bounding_box must be an object")
     out: dict[str, float] = {}
     for key in ("MaxX", "MinX", "MaxY", "MinY"):
-        out[key] = normalize_length(_require_number(box.get(key), f"bbox.{key}"), fact.get("unit"), key)
+        out[key] = _safe_normalize(lambda: normalize_length(_require_number(box.get(key), f"bbox.{key}"), fact.get("unit"), key), f"bbox.{key}")
     return out
 
 
@@ -150,7 +165,19 @@ def _footprint(facts: list[dict]) -> dict:
             isinstance(pair, list) and len(pair) == 2 for pair in corners
         ):
             raise ExportError("cannot export: Polygon footprint needs [[x, y], ...] corners")
-        parameters = {"Corners": [[_require_number(v, "corner") for v in pair] for pair in corners]}
+        unit = (_fact(facts, "building.footprint.corners") or {}).get("unit")
+        parameters = {
+            "Corners": [
+                [
+                    _safe_normalize(
+                        lambda v=v: normalize_length(_require_number(v, "corner"), unit, "corner"),
+                        "corner",
+                    )
+                    for v in pair
+                ]
+                for pair in corners
+            ]
+        }
     return {"Shape": shape, "Parameters": parameters, "BoundingBox": _bbox(facts)}
 
 
@@ -265,12 +292,17 @@ def export_state(
     *,
     root: Path | str | None = None,
     schema: dict | None = None,
+    facts_schema: dict | None = None,
+    issues_schema: dict | None = None,
 ) -> tuple[Path, ReadinessResult]:
     """Evaluate, build, strict-validate and atomically export metadata."""
-    result = evaluate_state(facts_data, issues_data)
+    result = evaluate_state(facts_data, issues_data, facts_schema=facts_schema, issues_schema=issues_schema)
     if not result.ready:
         raise NotReadyError(result)
-    metadata = build_metadata(result.facts)
+    try:
+        metadata = build_metadata(result.facts)
+    except UnitError as exc:
+        raise ExportError(f"cannot export: {exc}") from exc
     validation = validate_dict(metadata, schema or package_schema())
     if not validation.valid:
         raise ExportError(
@@ -299,11 +331,15 @@ def export_project(root: Path | str) -> Path:
         raise NotReadyError(ReadinessResult(status="INVALID", messages=[str(exc)])) from exc
     output_path = root_path / "output" / "metadata.json"
     schema = load_project_metadata_schema(root_path)
+    facts_schema = load_project_facts_schema(root_path)
+    issues_schema = load_project_issues_schema(root_path)
     path, _ = export_state(
         facts_data,
         issues_data,
         output_path,
         schema=schema,
+        facts_schema=facts_schema,
+        issues_schema=issues_schema,
         root=root_path,
     )
     return path

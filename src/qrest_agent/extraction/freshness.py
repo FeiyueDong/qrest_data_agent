@@ -60,6 +60,8 @@ def record_export(
         "version": EXPORT_STATE_SCHEMA,
         "facts_hash": hash_json_bytes(facts_path.read_bytes()),
         "issues_hash": hash_json_bytes(issues_path.read_bytes()),
+        "facts_schema_hash": hash_json_bytes((root / "schema" / "extraction_facts.schema.json").read_bytes()),
+        "issues_schema_hash": hash_json_bytes((root / "schema" / "extraction_issues.schema.json").read_bytes()),
         "metadata_schema_hash": hash_json_bytes(schema_path.read_bytes()),
         "output_hash": hash_file(output_path),
         "exported_at": _now(),
@@ -92,6 +94,8 @@ def output_freshness(root: Path) -> str:
         return MISSING
     if not facts_path.is_file() or not issues_path.is_file() or not schema_path.is_file():
         return STALE
+    if not (root / "schema" / "extraction_facts.schema.json").is_file() or not (root / "schema" / "extraction_issues.schema.json").is_file():
+        return STALE
     try:
         state = json.loads(state_path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, UnicodeDecodeError):
@@ -101,6 +105,8 @@ def output_freshness(root: Path) -> str:
     current = {
         "facts_hash": hash_json_bytes(facts_path.read_bytes()),
         "issues_hash": hash_json_bytes(issues_path.read_bytes()),
+        "facts_schema_hash": hash_json_bytes((root / "schema" / "extraction_facts.schema.json").read_bytes()),
+        "issues_schema_hash": hash_json_bytes((root / "schema" / "extraction_issues.schema.json").read_bytes()),
         "metadata_schema_hash": hash_json_bytes(schema_path.read_bytes()),
         "output_hash": hash_file(output_path),
     }

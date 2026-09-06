@@ -268,7 +268,7 @@
         "StartTime": {
           "type": "string",
           "format": "date-time",
-          "description": "不重要; record start time with timezone."
+          "description": "Required real RFC3339 timestamp with timezone; no UNKNOWN/0 default."
         },
         "NPTS": {
           "type": "integer",

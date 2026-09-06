@@ -102,10 +102,10 @@ PDF 仅保证 text-based PDF；扫描 PDF 会显式给出 WARNING。
 字段重要性标注以 data/metadata.json 中的注释为准：
 
 - 必须：ElevationNum、Elevation、ChannelNum、Channels[].ChannelNo、
-  LocationXYZ、Azimuth、NPTS、DT
+  LocationXYZ、Azimuth、NPTS、DT、StartTime（带时区真实时间）
 - 重要：StructuralFootprint、Measurand、Scale
-- 不重要：ProjectName、GeoLocation、StructuralType、Provider、ChannelID、
-  DeviceType、EventName、StartTime、Corrected（缺失可用 UNKNOWN / NULL / 0）
+- 不重要（允许协议默认 UNKNOWN/NULL/0）：ProjectName、GeoLocation、StructuralType、Provider、ChannelID、DeviceType、EventName、Corrected
+- StartTime 不是默认字段：必须为带时区的真实 RFC3339 时间，缺失/无时区时不可 READY
 
 Validator 一致性检查：
 
@@ -226,3 +226,14 @@ V0.2 第二轮 Agent 结果（facts/issues/status/export/评估）：
   invalid issue type 已从 Agent issue 类型中移除。
 - Final Validator：date-time 实际校验、Units 固定 const ["m", "s"]、StartTime 无协议回退。
 - 版本 0.2.1；Case 06（单位转换）与 Case 07（非法已知事实）作为确定性测试。
+
+## V0.22 — Contract Closure（V0.2 收尾）
+
+开发说明：docs/qREST Agent V0.22 Contract Closure 开发说明.md
+
+- export 与 status 使用同一组工程 Schema（metadata + extraction facts/issues）
+- READY = 可确定性 build：单位、非负尺寸、ChannelNo 唯一、RFC3339+时区 全部前移至 readiness
+- export manifest 记录 facts/issues schema hash；Extraction Schema 变更会使 output 变 STALE
+- RFC3339 校验由 status 与最终 Validator 共享
+- 新增 GitHub Actions：.github/workflows/ci.yml
+- 回归记录：validation_results/round4_v022/

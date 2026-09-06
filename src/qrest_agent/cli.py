@@ -27,7 +27,6 @@ from qrest_agent.workspace.project import fresh_parse_state
 from qrest_agent.workspace.schemas import (
     load_project_facts_schema,
     load_project_issues_schema,
-    load_project_metadata_schema,
 )
 
 PROG = "qrest-agent"

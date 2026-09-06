@@ -13,6 +13,7 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 from qrest_agent.extraction.units import UnitError, normalize_angle, normalize_length, normalize_time
+from qrest_agent.extraction.rfc3339 import is_rfc3339_datetime
 from qrest_agent.extraction.model import (
     CHANNEL_REQUIRED_FIELDS,
     EXPORT_REQUIREMENTS,
@@ -104,12 +105,19 @@ def _semantic_fact_messages(facts: list[dict]) -> list[str]:
                 bad(fact, "value must be a number")
             else:
                 try:
-                    normalize_length(value, unit, key)
+                    normalized = normalize_length(value, unit, key)
+                    if normalized < 0:
+                        bad(fact, "value must be >= 0")
                 except UnitError as exc:
                     bad(fact, str(exc))
         elif key == "building.bounding_box":
             if not isinstance(value, dict) or not all(number(value.get(k)) for k in ("MaxX", "MinX", "MaxY", "MinY")):
                 bad(fact, "bounding_box must contain numeric MaxX/MinX/MaxY/MinY")
+            if unit is not None:
+                try:
+                    normalize_length(1, unit, "bounding_box")
+                except UnitError as exc:
+                    bad(fact, str(exc))
         elif key == "building.footprint.shape":
             if not isinstance(value, str) or value not in shape_values:
                 bad(fact, f"shape must be one of {shape_values}, got {value!r}")
@@ -119,6 +127,11 @@ def _semantic_fact_messages(facts: list[dict]) -> list[str]:
                 for pair in value
             ):
                 bad(fact, "corners must be [[x, y], ...] of numbers")
+            if unit is not None:
+                try:
+                    normalize_length(1, unit, "corners")
+                except UnitError as exc:
+                    bad(fact, str(exc))
         elif key in ("building.geo.longitude", "building.geo.latitude", "building.geo.north_angle"):
             if not number(value):
                 bad(fact, "value must be a number")
@@ -145,6 +158,7 @@ def _semantic_fact_messages(facts: list[dict]) -> list[str]:
             if not isinstance(value, list):
                 bad(fact, "channels must be a list")
             else:
+                seen_channel_no: set[int] = set()
                 for i, channel in enumerate(value):
                     prefix = f"channels[{i}]"
                     if not isinstance(channel, dict):
@@ -152,6 +166,11 @@ def _semantic_fact_messages(facts: list[dict]) -> list[str]:
                         continue
                     if not isinstance(channel.get("ChannelNo"), int) or isinstance(channel.get("ChannelNo"), bool) or channel["ChannelNo"] < 1:
                         bad(fact, prefix + ".ChannelNo must be an integer >= 1")
+                    no_value = channel.get("ChannelNo")
+                    if isinstance(no_value, int) and not isinstance(no_value, bool) and no_value >= 1:
+                        if no_value in seen_channel_no:
+                            bad(fact, prefix + ".ChannelNo must be unique")
+                        seen_channel_no.add(no_value)
                     measurand = channel.get("Measurand")
                     if not isinstance(measurand, str) or not measurand:
                         bad(fact, prefix + ".Measurand must be a non-empty string")
@@ -179,20 +198,9 @@ def _semantic_fact_messages(facts: list[dict]) -> list[str]:
                 except UnitError as exc:
                     bad(fact, str(exc))
         elif key == "data.start_time":
-            if not isinstance(value, str) or not _valid_datetime(value):
+            if not isinstance(value, str) or not is_rfc3339_datetime(value):
                 bad(fact, "start_time must be a valid ISO-8601 date-time string")
     return messages
-
-
-def _valid_datetime(value: str) -> bool:
-    from datetime import datetime
-
-    text = value.replace("Z", "+00:00")
-    try:
-        datetime.fromisoformat(text)
-        return True
-    except ValueError:
-        return False
 
 
 def _requirement_issues(facts: list[dict]) -> list[dict]:
@@ -238,7 +246,7 @@ def _requirement_issues(facts: list[dict]) -> list[dict]:
     if not (isinstance(dt, (int, float)) and not isinstance(dt, bool)) or dt <= 0:
         blocking("data.dt", "Positive number DT is required for DataInfo.DT.")
     start = _fact_value(facts, "data.start_time")
-    if not isinstance(start, str) or not _valid_datetime(start):
+    if not isinstance(start, str) or not is_rfc3339_datetime(start):
         blocking("data.start_time", "A valid data.start_time is required by the strict contract (DataInfo.StartTime).")
     return issues
 

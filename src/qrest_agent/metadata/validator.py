@@ -21,6 +21,7 @@ from typing import Any
 from jsonschema import Draft202012Validator, FormatChecker
 
 from qrest_agent.metadata.schema import load_schema, package_schema
+from qrest_agent.extraction.rfc3339 import is_rfc3339_datetime
 
 _REQUIRED_PROP_RE = re.compile(r"'([^']+)' is a required property")
 _ADDITIONAL_PROP_RE = re.compile(
@@ -78,14 +79,6 @@ def _repr(value: Any) -> str:
 
 
 
-def _valid_datetime(value: str) -> bool:
-    from datetime import datetime
-
-    try:
-        datetime.fromisoformat(value.replace("Z", "+00:00"))
-        return True
-    except ValueError:
-        return False
 
 def _describe_schema_error(error) -> tuple[str | None, str | None]:
     validator = error.validator
@@ -139,7 +132,7 @@ def _schema_issues(metadata: dict, schema: dict) -> list[Issue]:
     data_info = metadata.get("DataInfo")
     if isinstance(data_info, dict):
         start = data_info.get("StartTime")
-        if isinstance(start, str) and not _valid_datetime(start):
+        if isinstance(start, str) and not is_rfc3339_datetime(start):
             issues.append(
                 Issue(
                     level="ERROR",

@@ -1,0 +1,47 @@
+qREST Extraction Status
+
+Status: CONFLICT
+
+Output: MISSING
+Known facts:
+- building.project_name = 'Kunming_SSJY'
+- building.structural_type = 'SteelFrame'
+- building.footprint.shape = 'Rectangular'
+- building.footprint.length = 42.0
+- building.footprint.width = 25.2
+- building.story_count = 14
+- building.story_count = 15
+- building.height = 47.4
+- building.height = 48.0
+- building.site_class = 'III'
+- building.site_class = 'II'
+- monitoring.channel_count = 18
+- monitoring.channel_count = 20
+- data.event_name = '2025_MYANMAR_7.9'
+- data.start_time = '2025-03-28T14:20:00.000+08:00'
+- data.npts = 30000
+- data.dt = 0.02
+
+Blocking issues:
+- monitoring.channel_count (conflict)
+  report.pdf says 18 channels, note.txt says 20; no authority given, do not pick one.
+  candidate: 18 <- report.pdf
+  candidate: 20 <- note.txt
+- building.height (conflict)
+  Conflicting facts were recorded for 'building.height'.
+  candidate: 47.4 <- report.pdf
+  candidate: 48.0 <- note.txt
+- building.site_class (conflict)
+  Conflicting facts were recorded for 'building.site_class'.
+  candidate: 'III' <- report.pdf
+  candidate: 'II' <- note.txt
+- building.story_count (conflict)
+  Conflicting facts were recorded for 'building.story_count'.
+  candidate: 14 <- report.pdf
+  candidate: 15 <- note.txt
+- monitoring.channel_count (conflict)
+  Conflicting facts were recorded for 'monitoring.channel_count'.
+  candidate: 18 <- report.pdf
+  candidate: 20 <- note.txt
+
+Final qREST_DATA cannot be exported.
